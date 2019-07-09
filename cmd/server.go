@@ -101,15 +101,15 @@ func serverRun(cmd *cobra.Command, args []string) {
 				var status float64
 				switch check.Status {
 				case "unknown":
-					status = -2
-				case "paused":
-					status = -1
-				case "up":
 					status = 0
-				case "unconfirmed_down":
+				case "paused":
+					status = 0
+				case "up":
 					status = 1
+				case "unconfirmed_down":
+					status = 0
 				case "down":
-					status = 2
+					status = 0
 				default:
 					status = 100
 				}
