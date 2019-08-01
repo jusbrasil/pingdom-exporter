@@ -1,7 +1,7 @@
 PROJECT=prometheus-pingdom-exporter
 
 BUILD_PATH := $(shell pwd)/.gobuild
-GS_PATH := $(BUILD_PATH)/src/github.com/giantswarm
+GS_PATH := $(BUILD_PATH)/src/github.com/veepee-moc
 GOPATH := $(BUILD_PATH)
 
 GOVERSION=1.7
@@ -25,10 +25,10 @@ endif
 BUILD_COMMAND=go build -a \
 	-tags netgo \
 	-ldflags \
-	"-X github.com/giantswarm/prometheus-pingdom-exporter/cmd.version=$(VERSION) \
-	-X github.com/giantswarm/prometheus-pingdom-exporter/cmd.goVersion=$(GOVERSION) \
-	-X github.com/giantswarm/prometheus-pingdom-exporter/cmd.gitCommit=$(COMMIT) \
-	-X github.com/giantswarm/prometheus-pingdom-exporter/cmd.osArch=$(GOOS)/$(GOARCH) \
+	"-X github.com/veepee-moc/pingdom_exporter/cmd.version=$(VERSION) \
+	-X github.com/veepee-moc/pingdom_exporter/cmd.goVersion=$(GOVERSION) \
+	-X github.com/veepee-moc/pingdom_exporter/cmd.gitCommit=$(COMMIT) \
+	-X github.com/veepee-moc/pingdom_exporter/cmd.osArch=$(GOOS)/$(GOARCH) \
 	-w" \
 	-o $(BIN)
 
