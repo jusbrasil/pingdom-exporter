@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -23,7 +24,12 @@ func setup() {
 	server = httptest.NewServer(mux)
 
 	// test client
-	client = NewClient("fake_email@example.com", "12345", "my_api_key")
+	client, _ = NewClientWithConfig(ClientConfig{
+		User:     "fake_email@example.com",
+		Password: "12345",
+		APIKey:   "my_api_key",
+	})
+
 	url, _ := url.Parse(server.URL)
 	client.BaseURL = url
 }
@@ -33,31 +39,31 @@ func teardown() {
 }
 
 func testMethod(t *testing.T, r *http.Request, want string) {
-	if want != r.Method {
-		t.Errorf("Request method = %v, want %v", r.Method, want)
-	}
+	assert.Equal(t, want, r.Method)
+}
+
+func TestNewClientWithConfig(t *testing.T) {
+	c, err := NewClientWithConfig(ClientConfig{
+		User:     "user",
+		Password: "password",
+		APIKey:   "key",
+	})
+	assert.NoError(t, err)
+	assert.Equal(t, http.DefaultClient, c.client)
+	assert.Equal(t, defaultBaseURL, c.BaseURL.String())
+	assert.NotNil(t, c.Checks)
 }
 
 func TestNewClient(t *testing.T) {
 	c := NewClient("user", "password", "key")
-	if c.client != http.DefaultClient {
-		t.Errorf("NewClient client = %v, want http.DefaultClient", c.client)
-	}
-
-	if c.BaseURL.String() != defaultBaseURL {
-		t.Errorf("NewClient BaseURL = %v, want %v", c.BaseURL.String(), defaultBaseURL)
-	}
-
-	if c.Checks == nil {
-		t.Errorf("NewClient Checks service is nil")
-	}
+	assert.Equal(t, http.DefaultClient, c.client)
+	assert.Equal(t, defaultBaseURL, c.BaseURL.String())
+	assert.NotNil(t, c.Checks)
 }
 
 func TestNewMultiUserClient(t *testing.T) {
 	c := NewMultiUserClient("user", "password", "key", "account_email")
-	if c.AccountEmail == "" {
-		t.Errorf("NewMultiUserClient failed to set AccountEmail property")
-	}
+	assert.NotEqual(t, "", c.AccountEmail, "NewMultiUserClient failed to set AccountEmail property")
 }
 
 func TestNewRequest(t *testing.T) {
@@ -65,17 +71,10 @@ func TestNewRequest(t *testing.T) {
 	defer teardown()
 
 	req, err := client.NewRequest("GET", "/checks", nil)
-	if err != nil {
-		t.Errorf("NewRequest returned error: %v", err)
-	}
 
-	if req.Method != "GET" {
-		t.Errorf("NewRequest Method returned %+v, want %+v", req.Method, "GET")
-	}
-
-	if req.URL.String() != client.BaseURL.String()+"/checks" {
-		t.Errorf("NewRequest URL returned %+v, want %+v", req.URL.String(), client.BaseURL.String()+"/checks")
-	}
+	assert.NoError(t, err)
+	assert.Equal(t, "GET", req.Method)
+	assert.Equal(t, client.BaseURL.String()+"/checks", req.URL.String())
 }
 
 func TestDo(t *testing.T) {
@@ -95,12 +94,10 @@ func TestDo(t *testing.T) {
 
 	req, _ := client.NewRequest("GET", "/", nil)
 	body := new(foo)
-	client.Do(req, body)
-
 	want := &foo{"a"}
-	if !reflect.DeepEqual(body, want) {
-		t.Errorf("Response body = %v, want %v", body, want)
-	}
+
+	client.Do(req, body)
+	assert.Equal(t, want, body)
 }
 
 func TestValidateResponse(t *testing.T) {
@@ -110,9 +107,7 @@ func TestValidateResponse(t *testing.T) {
 		Body:       ioutil.NopCloser(strings.NewReader("OK")),
 	}
 
-	if err := validateResponse(valid); err != nil {
-		t.Errorf("ValidateResponse with valid response returned error %+v", err)
-	}
+	assert.NoError(t, validateResponse(valid))
 
 	invalid := &http.Response{
 		Request:    &http.Request{},
@@ -127,8 +122,5 @@ func TestValidateResponse(t *testing.T) {
 	}
 
 	want := &PingdomError{400, "Bad Request", "This is an error"}
-	if err := validateResponse(invalid); !reflect.DeepEqual(err, want) {
-		t.Errorf("ValidateResponse with invalid response returned %+v, want %+v", err, want)
-	}
-
+	assert.Equal(t, want, validateResponse(invalid))
 }

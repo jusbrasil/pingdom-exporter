@@ -1,8 +1,9 @@
 package pingdom
 
 import (
-	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestHttpCheckPutParams(t *testing.T) {
@@ -14,42 +15,37 @@ func TestHttpCheckPutParams(t *testing.T) {
 			"User-Agent": "Pingdom.com_bot_version_1.4_(http://www.pingdom.com/)",
 			"Pragma":     "no-cache",
 		},
-		Username:       "user",
-		Password:       "pass",
-		ContactIds:     []int{11111111, 22222222},
-		IntegrationIds: []int{33333333, 44444444},
+		Username:              "user",
+		Password:              "pass",
+		IntegrationIds:        []int{33333333, 44444444},
+		UserIds:               []int{123, 456},
+		TeamIds:               []int{789},
+		ResponseTimeThreshold: 2300,
 	}
-	params := check.PutParams()
 	want := map[string]string{
-		"name":                     "fake check",
-		"host":                     "example.com",
-		"paused":                   "false",
-		"resolution":               "0",
-		"sendtoemail":              "false",
-		"sendtosms":                "false",
-		"sendtotwitter":            "false",
-		"sendtoiphone":             "false",
-		"sendtoandroid":            "false",
-		"sendnotificationwhendown": "0",
-		"notifyagainevery":         "0",
-		"notifywhenbackup":         "false",
-		"use_legacy_notifications": "false",
-		"url":              "/foo",
-		"requestheader0":   "Pragma:no-cache",
-		"requestheader1":   "User-Agent:Pingdom.com_bot_version_1.4_(http://www.pingdom.com/)",
-		"auth":             "user:pass",
-		"encryption":       "false",
-		"shouldnotcontain": "",
-		"postdata":         "",
-		"contactids":       "11111111,22222222",
-		"integrationids":   "33333333,44444444",
-		"tags":             "",
-		"probe_filters":    "",
+		"name":                   "fake check",
+		"host":                   "example.com",
+		"paused":                 "false",
+		"resolution":             "0",
+		"notifyagainevery":       "0",
+		"notifywhenbackup":       "false",
+		"url":                    "/foo",
+		"requestheader0":         "Pragma:no-cache",
+		"requestheader1":         "User-Agent:Pingdom.com_bot_version_1.4_(http://www.pingdom.com/)",
+		"auth":                   "user:pass",
+		"encryption":             "false",
+		"shouldnotcontain":       "",
+		"postdata":               "",
+		"integrationids":         "33333333,44444444",
+		"tags":                   "",
+		"probe_filters":          "",
+		"userids":                "123,456",
+		"teamids":                "789",
+		"responsetime_threshold": "2300",
 	}
 
-	if !reflect.DeepEqual(params, want) {
-		t.Errorf("Check.PutParams() returned %+v, want %+v", params, want)
-	}
+	params := check.PutParams()
+	assert.Equal(t, want, params)
 }
 
 func TestHttpCheckPostParams(t *testing.T) {
@@ -61,101 +57,202 @@ func TestHttpCheckPostParams(t *testing.T) {
 			"User-Agent": "Pingdom.com_bot_version_1.4_(http://www.pingdom.com/)",
 			"Pragma":     "no-cache",
 		},
-		Username:       "user",
-		Password:       "pass",
-		ContactIds:     []int{11111111, 22222222},
-		IntegrationIds: []int{33333333, 44444444},
+		Username:              "user",
+		Password:              "pass",
+		IntegrationIds:        []int{33333333, 44444444},
+		UserIds:               []int{123, 456},
+		TeamIds:               []int{789},
+		ResponseTimeThreshold: 2300,
 	}
-	params := check.PostParams()
 	want := map[string]string{
-		"name":                     "fake check",
-		"host":                     "example.com",
-		"paused":                   "false",
-		"resolution":               "0",
-		"sendtoemail":              "false",
-		"sendtosms":                "false",
-		"sendtotwitter":            "false",
-		"sendtoiphone":             "false",
-		"sendtoandroid":            "false",
-		"sendnotificationwhendown": "0",
-		"notifyagainevery":         "0",
-		"notifywhenbackup":         "false",
-		"use_legacy_notifications": "false",
-		"type":           "http",
-		"url":            "/foo",
-		"requestheader0": "Pragma:no-cache",
-		"requestheader1": "User-Agent:Pingdom.com_bot_version_1.4_(http://www.pingdom.com/)",
-		"auth":           "user:pass",
-		"encryption":     "false",
-		"contactids":     "11111111,22222222",
-		"integrationids": "33333333,44444444",
+		"name":                   "fake check",
+		"host":                   "example.com",
+		"paused":                 "false",
+		"resolution":             "0",
+		"notifyagainevery":       "0",
+		"notifywhenbackup":       "false",
+		"type":                   "http",
+		"url":                    "/foo",
+		"requestheader0":         "Pragma:no-cache",
+		"requestheader1":         "User-Agent:Pingdom.com_bot_version_1.4_(http://www.pingdom.com/)",
+		"auth":                   "user:pass",
+		"encryption":             "false",
+		"integrationids":         "33333333,44444444",
+		"userids":                "123,456",
+		"teamids":                "789",
+		"responsetime_threshold": "2300",
 	}
 
-	if !reflect.DeepEqual(params, want) {
-		t.Errorf("Check.PostParams() returned %+v, want %+v", params, want)
-	}
+	params := check.PostParams()
+	assert.Equal(t, want, params)
 }
 
 func TestHttpCheckValid(t *testing.T) {
 	check := HttpCheck{Name: "fake check", Hostname: "example.com", Resolution: 15}
-	if err := check.Valid(); err != nil {
-		t.Errorf("Valid with valid check returned error %+v", err)
-	}
+	assert.NoError(t, check.Valid())
 
-	check = HttpCheck{Name: "fake check", Hostname: "example.com"}
-	if err := check.Valid(); err == nil {
-		t.Errorf("Valid with invalid check (`Resolution` == 0) expected error, returned nil")
-	}
+	badCheck := HttpCheck{Name: "fake check", Hostname: "example.com"}
+	assert.Error(t, badCheck.Valid())
 
-	check = HttpCheck{
+	badContainsCheck := HttpCheck{
 		Name:             "fake check",
 		Hostname:         "example.com",
 		Resolution:       15,
 		ShouldContain:    "foo",
 		ShouldNotContain: "bar",
 	}
-	if err := check.Valid(); err == nil {
-		t.Errorf("Valid with invalid check (`ShouldContain` and `ShouldNotContain` defined) expected error, returned nil")
-	}
-
+	assert.Error(t, badContainsCheck.Valid())
 }
 
 func TestPingCheckPostParams(t *testing.T) {
-	check := PingCheck{Name: "fake check", Hostname: "example.com", ContactIds: []int{11111111, 22222222}, IntegrationIds: []int{33333333, 44444444}}
-	params := check.PostParams()
+	check := PingCheck{
+		Name:                  "fake check",
+		Hostname:              "example.com",
+		IntegrationIds:        []int{33333333, 44444444},
+		UserIds:               []int{123, 456},
+		TeamIds:               []int{789},
+		ResponseTimeThreshold: 2300,
+	}
 	want := map[string]string{
-		"name":                     "fake check",
-		"host":                     "example.com",
-		"paused":                   "false",
-		"resolution":               "0",
-		"sendtoemail":              "false",
-		"sendtosms":                "false",
-		"sendtotwitter":            "false",
-		"sendtoiphone":             "false",
-		"sendtoandroid":            "false",
-		"sendnotificationwhendown": "0",
-		"notifyagainevery":         "0",
-		"notifywhenbackup":         "false",
-		"use_legacy_notifications": "false",
-		"type":           "ping",
-		"contactids":     "11111111,22222222",
-		"integrationids": "33333333,44444444",
-		"probe_filters":  "",
+		"name":                   "fake check",
+		"host":                   "example.com",
+		"paused":                 "false",
+		"resolution":             "0",
+		"notifyagainevery":       "0",
+		"notifywhenbackup":       "false",
+		"type":                   "ping",
+		"integrationids":         "33333333,44444444",
+		"userids":                "123,456",
+		"teamids":                "789",
+		"responsetime_threshold": "2300",
 	}
 
-	if !reflect.DeepEqual(params, want) {
-		t.Errorf("Check.PostParams() returned %+v, want %+v", params, want)
+	params := check.PostParams()
+	assert.Equal(t, want, params)
+}
+
+func TestPingCheckPutParams(t *testing.T) {
+	check := PingCheck{
+		Name:           "fake check",
+		Hostname:       "example.com",
+		IntegrationIds: []int{33333333, 44444444},
+		UserIds:        []int{123, 456},
+		TeamIds:        []int{789},
 	}
+	want := map[string]string{
+		"name":             "fake check",
+		"host":             "example.com",
+		"resolution":       "0",
+		"paused":           "false",
+		"notifyagainevery": "0",
+		"notifywhenbackup": "false",
+		"integrationids":   "33333333,44444444",
+		"probe_filters":    "",
+		"userids":          "123,456",
+		"teamids":          "789",
+	}
+
+	params := check.PutParams()
+	assert.Equal(t, want, params)
 }
 
 func TestPingCheckValid(t *testing.T) {
 	check := PingCheck{Name: "fake check", Hostname: "example.com", Resolution: 15}
-	if err := check.Valid(); err != nil {
-		t.Errorf("Valid with valid check returned error %+v", err)
+	assert.NoError(t, check.Valid())
+
+	badCheck := PingCheck{Name: "fake check", Hostname: "example.com"}
+	assert.Error(t, badCheck.Valid())
+}
+
+func TestTCPCheckPostParams(t *testing.T) {
+	check := TCPCheck{
+		Name:           "fake check",
+		Hostname:       "example.com",
+		IntegrationIds: []int{33333333, 44444444},
+		UserIds:        []int{123, 456},
+		TeamIds:        []int{789},
+		Port:           8080,
+		StringToSend:   "Hello World",
+		StringToExpect: "Hi there",
+	}
+	want := map[string]string{
+		"name":             "fake check",
+		"host":             "example.com",
+		"paused":           "false",
+		"resolution":       "0",
+		"notifyagainevery": "0",
+		"notifywhenbackup": "false",
+		"type":             "tcp",
+		"integrationids":   "33333333,44444444",
+		"userids":          "123,456",
+		"teamids":          "789",
+		"port":             "8080",
+		"stringtosend":     "Hello World",
+		"stringtoexpect":   "Hi there",
 	}
 
-	check = PingCheck{Name: "fake check", Hostname: "example.com"}
-	if err := check.Valid(); err == nil {
-		t.Errorf("Valid with invalid check expected error, returned nil")
-	}
+	params := check.PostParams()
+	assert.Equal(t, want, params)
+}
+
+func TestTCPCheckValid(t *testing.T) {
+	check := TCPCheck{Name: "fake check", Hostname: "example.com", Resolution: 15, Port: 8080}
+	assert.NoError(t, check.Valid())
+
+	badCheck := TCPCheck{Name: "fake check", Hostname: "example.com", Resolution: 15}
+	assert.Error(t, badCheck.Valid())
+}
+
+func TestSummaryPerformanceRequestValid(t *testing.T) {
+	t.Run("missing field 'id'", func(t *testing.T) {
+		assert.Equal(t, ErrMissingId, SummaryPerformanceRequest{}.Valid())
+	})
+
+	t.Run("resolution", func(t *testing.T) {
+		assert.Nil(t, SummaryPerformanceRequest{
+			Id:         123,
+			Resolution: "hour",
+		}.Valid())
+		assert.Nil(t, SummaryPerformanceRequest{
+			Id:         123,
+			Resolution: "day",
+		}.Valid())
+		assert.Nil(t, SummaryPerformanceRequest{
+			Id:         123,
+			Resolution: "week",
+		}.Valid())
+		assert.Equal(t, ErrBadResolution, SummaryPerformanceRequest{
+			Id:         123,
+			Resolution: "month",
+		}.Valid())
+
+	})
+}
+
+func TestSummaryPerformanceRequestGetParams(t *testing.T) {
+	id := 1337
+	t.Run("empty request", func(t *testing.T) {
+		want := map[string]string{}
+
+		params := SummaryPerformanceRequest{
+			Id: id,
+		}.GetParams()
+
+		assert.Equal(t, want, params)
+	})
+
+	t.Run("with some params", func(t *testing.T) {
+		want := map[string]string{
+			"resolution":    "week",
+			"includeuptime": "true",
+		}
+
+		params := SummaryPerformanceRequest{
+			Id:            id,
+			IncludeUptime: true,
+			Resolution:    "week",
+		}.GetParams()
+
+		assert.Equal(t, want, params)
+	})
 }
