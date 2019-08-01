@@ -1,4 +1,4 @@
-package: github.com/giantswarm/prometheus-pingdom-exporter
+package: github.com/veepee-moc/pingdom_exporter
 import:
 - package: github.com/prometheus/client_golang
   version: ^0.9.0-pre1

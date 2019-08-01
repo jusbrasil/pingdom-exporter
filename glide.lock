@@ -1,46 +1,46 @@
-hash: d49ddfae640a61be649f78ccfc74f1dca9116247c9683c5e61e15a696c2b7073
-updated: 2018-04-13T13:08:01.32167583+02:00
+hash: 5c245f5a3ce742902904eb2708abc70ea6ecec5f1df2ead8a5e44cc1de8dbb09
+updated: 2019-08-01T22:11:24.600146+02:00
 imports:
 - name: github.com/beorn7/perks
-  version: 3a771d992973f24aa725d07868b467d1ddfceafb
+  version: 37c8de3658fcb183f997c4e13e8337516ab753e6
   subpackages:
   - quantile
 - name: github.com/golang/protobuf
-  version: e09c5db296004fbe3f74490e84dcd62c3c5ddb1b
+  version: 6c65a5562fc06764971b7c5d05c76c75e84bdbf7
   subpackages:
   - proto
 - name: github.com/inconshreveable/mousetrap
   version: 76626ae9c91c4f2a10f34cad8ce83ea42c93bb75
 - name: github.com/matttproud/golang_protobuf_extensions
-  version: c12348ce28de40eed0136aa2b644d0ee0650e56c
+  version: c182affec369e30f25d3eb8cd8a478dee585ae7d
   subpackages:
   - pbutil
 - name: github.com/prometheus/client_golang
-  version: 967789050ba94deca04a5e84cce8ad472ce313c1
+  version: 2641b987480bca71fb39738eb8c8b0d577cb1d76
   subpackages:
   - prometheus
+  - prometheus/internal
 - name: github.com/prometheus/client_model
-  version: 99fa1f4be8e564e8a6b613da7fa6f46c9edafc6c
+  version: fd36f4220a901265f90734c3183c5f0c91daa0b8
   subpackages:
   - go
 - name: github.com/prometheus/common
-  version: d0f7cd64bda49e08b22ae8a730aa57aa0db125d6
+  version: 637d7c34db122e2d1a25d061423098663758d2d3
   subpackages:
   - expfmt
   - internal/bitbucket.org/ww/goautoneg
   - model
 - name: github.com/prometheus/procfs
-  version: 8b1c2da0d56deffdbb9e48d4414b4e674bd8083e
+  version: 5da962fa40f1c9b54ed78f10ba32429b396e712b
   subpackages:
+  - internal/fs
   - internal/util
-  - nfs
-  - xfs
 - name: github.com/russellcardullo/go-pingdom
-  version: 7687c8559aa8f34f04ca0d5dc81d678fc3e50805
+  version: bc586efbde201d182be7d36facbc99f9487631cc
   subpackages:
   - pingdom
 - name: github.com/spf13/cobra
-  version: a1f051bc3eba734da4772d60e2d677f47cf93ef4
+  version: f2b07da1e2c38d5f12845a4f607e2e1018cbb1f5
 - name: github.com/spf13/pflag
-  version: 583c0c0531f06d5278b7d917446061adc344b5cd
+  version: 24fa6976df40757dce6aea913e7b81ade90530e1
 testImports: []

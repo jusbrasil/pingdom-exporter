@@ -1,10 +1,10 @@
-PROJECT=prometheus-pingdom-exporter
+PROJECT=pingdom_exporter
 
 BUILD_PATH := $(shell pwd)/.gobuild
 GS_PATH := $(BUILD_PATH)/src/github.com/veepee-moc
 GOPATH := $(BUILD_PATH)
 
-GOVERSION=1.7
+GOVERSION=1.12
 
 BIN := $(PROJECT)
 
@@ -64,6 +64,7 @@ $(BIN): $(SOURCE) VERSION .gobuild
 	docker run \
 	    --rm \
 	    -v $(shell pwd):/usr/code \
+	    -v $(shell pwd):/usr/code/$(GS_PATH) \
 	    -e GOPATH=/usr/code/.gobuild \
 	    -e GOOS=$(GOOS) \
 	    -e GOARCH=$(GOARCH) \
