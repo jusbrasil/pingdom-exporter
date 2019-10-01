@@ -89,7 +89,7 @@ func serverRun(cmd *cobra.Command, args []string) {
 			flag.Arg(4),
 		)
 	} else {
-		log.Fatal(cmd.Help())
+		_ = cmd.Help()
 		os.Exit(1)
 	}
 
@@ -166,8 +166,8 @@ func serverRun(cmd *cobra.Command, args []string) {
 	}()
 
 	go func() {
-		intChan := make(chan os.Signal)
-		termChan := make(chan os.Signal)
+		intChan := make(chan os.Signal, 1)
+		termChan := make(chan os.Signal, 1)
 
 		signal.Notify(intChan, syscall.SIGINT)
 		signal.Notify(termChan, syscall.SIGTERM)
@@ -189,5 +189,5 @@ func serverRun(cmd *cobra.Command, args []string) {
 
 	log.Print("Listening on port ", port)
 
-	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
