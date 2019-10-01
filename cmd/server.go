@@ -1,3 +1,4 @@
+// Copyright 2019 Veepee.
 // Copyright 2016 Giant Swarm GmbH.
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -88,7 +89,7 @@ func serverRun(cmd *cobra.Command, args []string) {
 			flag.Arg(4),
 		)
 	} else {
-		cmd.Help()
+		log.Fatal(cmd.Help())
 		os.Exit(1)
 	}
 
