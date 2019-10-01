@@ -1,5 +1,5 @@
-prometheus-pingdom-exporter
-.gobuild/
-bin-dist/
-build/
-
+/.build
+/.release
+/.tarballs
+/pingdom_exporter
+*.tar.gz
