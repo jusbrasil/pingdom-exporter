@@ -19,6 +19,6 @@ import (
 
 // RootCmd is the main Cobra Command.
 var RootCmd = &cobra.Command{
-	Use:   "prometheus-pingdom-exporter",
-	Short: "prometheus-pingdom-exporter exports Pingdom metrics to Prometheus",
+	Use:   "pingdom_exporter",
+	Short: "pingdom_exporter exports Pingdom metrics to Prometheus",
 }
