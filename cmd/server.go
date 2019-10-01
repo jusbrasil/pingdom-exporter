@@ -16,7 +16,6 @@ package cmd
 import (
 	"flag"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -27,6 +26,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/prometheus/common/log"
 	"github.com/spf13/cobra"
 	"github.com/strike-team/go-pingdom/pingdom"
 )
@@ -78,7 +78,7 @@ func retrieveChecksMetrics(client *pingdom.Client) {
 	}
 	checks, err := client.Checks.List(params)
 	if err != nil {
-		log.Println("Error getting checks ", err)
+		log.Errorf("Error getting checks: %v", err)
 		pingdomUp.Set(0)
 
 		return
@@ -177,10 +177,10 @@ func serverRun(cmd *cobra.Command, args []string) {
 
 		select {
 		case <-intChan:
-			log.Print("Received SIGINT, exiting")
+			log.Infoln("Received SIGINT, exiting")
 			os.Exit(0)
 		case <-termChan:
-			log.Print("Received SIGTERM, exiting")
+			log.Infoln("Received SIGTERM, exiting")
 			os.Exit(0)
 		}
 	}()
@@ -190,7 +190,7 @@ func serverRun(cmd *cobra.Command, args []string) {
 	})
 	http.Handle("/metrics", promhttp.Handler())
 
-	log.Print("Listening on port ", port)
+	log.Infoln("Listening on:", port)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
