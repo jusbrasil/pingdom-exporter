@@ -1,10 +1,10 @@
 FROM alpine:3.8
 MAINTAINER Joseph Salisbury <joseph@giantswarm.io>
 
-COPY ./prometheus-pingdom-exporter /prometheus-pingdom-exporter
+ARG ARCH="amd64"
+ARG OS="linux"
+COPY .build/${OS}-${ARCH}/pingdom_exporter   /bin/pingdom_exporter
 
 RUN apk update && apk add ca-certificates
-
-EXPOSE 8000
-
-ENTRYPOINT ["/prometheus-pingdom-exporter"]
+EXPOSE     9652
+ENTRYPOINT [ "/bin/pingdom_exporter" ]
