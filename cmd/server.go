@@ -72,6 +72,73 @@ func sleep() {
 	time.Sleep(time.Second * time.Duration(waitSeconds))
 }
 
+func retrieveChecksMetrics(client *pingdom.Client) {
+	params := map[string]string{
+		"include_tags": "true",
+	}
+	checks, err := client.Checks.List(params)
+	if err != nil {
+		log.Println("Error getting checks ", err)
+		pingdomUp.Set(0)
+
+		return
+	}
+	pingdomUp.Set(1)
+
+	for _, check := range checks {
+		id := strconv.Itoa(check.ID)
+
+		var status float64
+		switch check.Status {
+		case "unknown":
+			status = 0
+		case "paused":
+			status = 0
+		case "up":
+			status = 1
+		case "unconfirmed_down":
+			status = 0
+		case "down":
+			status = 0
+		default:
+			status = 100
+		}
+
+		resolution := strconv.Itoa(check.Resolution)
+
+		paused := strconv.FormatBool(check.Paused)
+		// Pingdom library doesn't report paused correctly,
+		// so calculate it off the status.
+		if check.Status == "paused" {
+			paused = "true"
+		}
+
+		var tagsRaw []string
+		for _, tag := range check.Tags {
+			tagsRaw = append(tagsRaw, tag.Name)
+		}
+		tags := strings.Join(tagsRaw, ",")
+
+		pingdomCheckStatus.WithLabelValues(
+			id,
+			check.Name,
+			check.Hostname,
+			resolution,
+			paused,
+			tags,
+		).Set(status)
+
+		pingdomCheckResponseTime.WithLabelValues(
+			id,
+			check.Name,
+			check.Hostname,
+			resolution,
+			paused,
+			tags,
+		).Set(float64(check.LastResponseTime))
+	}
+}
+
 func serverRun(cmd *cobra.Command, args []string) {
 	var client *pingdom.Client
 	flag.Parse()
@@ -96,72 +163,7 @@ func serverRun(cmd *cobra.Command, args []string) {
 
 	go func() {
 		for {
-			params := map[string]string{
-				"include_tags": "true",
-			}
-			checks, err := client.Checks.List(params)
-			if err != nil {
-				log.Println("Error getting checks ", err)
-				pingdomUp.Set(0)
-
-				sleep()
-				continue
-			}
-			pingdomUp.Set(1)
-
-			for _, check := range checks {
-				id := strconv.Itoa(check.ID)
-
-				var status float64
-				switch check.Status {
-				case "unknown":
-					status = 0
-				case "paused":
-					status = 0
-				case "up":
-					status = 1
-				case "unconfirmed_down":
-					status = 0
-				case "down":
-					status = 0
-				default:
-					status = 100
-				}
-
-				resolution := strconv.Itoa(check.Resolution)
-
-				paused := strconv.FormatBool(check.Paused)
-				// Pingdom library doesn't report paused correctly,
-				// so calculate it off the status.
-				if check.Status == "paused" {
-					paused = "true"
-				}
-
-				var tagsRaw []string
-				for _, tag := range check.Tags {
-					tagsRaw = append(tagsRaw, tag.Name)
-				}
-				tags := strings.Join(tagsRaw, ",")
-
-				pingdomCheckStatus.WithLabelValues(
-					id,
-					check.Name,
-					check.Hostname,
-					resolution,
-					paused,
-					tags,
-				).Set(status)
-
-				pingdomCheckResponseTime.WithLabelValues(
-					id,
-					check.Name,
-					check.Hostname,
-					resolution,
-					paused,
-					tags,
-				).Set(float64(check.LastResponseTime))
-			}
-
+			retrieveChecksMetrics(client)
 			sleep()
 		}
 	}()
