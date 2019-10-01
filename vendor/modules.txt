@@ -34,7 +34,7 @@ github.com/sirupsen/logrus
 github.com/spf13/cobra
 # github.com/spf13/pflag v1.0.5
 github.com/spf13/pflag
-# github.com/strike-team/go-pingdom v0.0.0-20190930150516-54ab3aa6f255
+# github.com/strike-team/go-pingdom v1.0.1-0.20191001220237-b85fb8ce79a5
 github.com/strike-team/go-pingdom/pingdom
 # golang.org/x/sys v0.0.0-20191001151750-bb3f8db39f24
 golang.org/x/sys/windows

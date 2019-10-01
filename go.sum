@@ -97,8 +97,8 @@ github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXf
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
 github.com/stretchr/testify v1.4.0 h1:2E4SXV/wtOkTonXsotYi4li6zVWxYlZuYNCXe9XRJyk=
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
-github.com/strike-team/go-pingdom v0.0.0-20190930150516-54ab3aa6f255 h1:o72NL3Yx4Vqg1Pvzp8AxlhPISVJv/mM5UdQqEE8rwlY=
-github.com/strike-team/go-pingdom v0.0.0-20190930150516-54ab3aa6f255/go.mod h1:vxdX0N+uw5PD4J3LUow6PLSLuLuHaumsFbFZNI+49Yo=
+github.com/strike-team/go-pingdom v1.0.1-0.20191001220237-b85fb8ce79a5 h1:WV/4qcOzLw8nmHhxo+qJhaddW/ViryPolzD6aYB0HRQ=
+github.com/strike-team/go-pingdom v1.0.1-0.20191001220237-b85fb8ce79a5/go.mod h1:vxdX0N+uw5PD4J3LUow6PLSLuLuHaumsFbFZNI+49Yo=
 github.com/ugorji/go/codec v0.0.0-20181204163529-d75b2dcb6bc8/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 golang.org/x/crypto v0.0.0-20180904163835-0709b304e793/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=

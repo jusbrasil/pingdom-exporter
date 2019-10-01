@@ -85,15 +85,16 @@ type MaintenanceCheckResponse struct {
 	Tms    []int `json:"tms"`
 }
 
-// TsmResponse represents the JSON response for a check from the Pingdom API.
-type TsmResponse struct {
-	Name                   string `json:"name"`
-	Status                 string `json:"status"`
-	Kitchen                string `json:"kitchen"`
-	Active                 string `json:"active"`
-	CreatedAt              int64  `json:"created_at"`
-	Interval               int    `json:"interval"`
-	UseLegacyNotifications string `json:"use_legacy_notifications,omitempty"`
+// TmsResponse represents the JSON response for a check from the Pingdom API.
+type TmsResponse struct {
+	Name                   string             `json:"name"`
+	Status                 string             `json:"status"`
+	Kitchen                string             `json:"kitchen"`
+	Active                 string             `json:"active"`
+	CreatedAt              int64              `json:"created_at"`
+	Interval               int                `json:"interval"`
+	UseLegacyNotifications bool               `json:"use_legacy_notifications,omitempty"`
+	Tags                   []CheckResponseTag `json:"tags,omitempty"`
 }
 
 // ProbeResponse represents the JSON response for probes from the Pingdom API.
@@ -269,8 +270,8 @@ type listChecksJSONResponse struct {
 	Checks []CheckResponse `json:"checks"`
 }
 
-type listTsmJSONResponse struct {
-	Tsm []TsmResponse `json:"recipes"`
+type listTmsJSONResponse struct {
+	Tms map[int]TmsResponse `json:"recipes"`
 }
 
 type listMaintenanceJSONResponse struct {

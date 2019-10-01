@@ -26,7 +26,7 @@ type Client struct {
 	Maintenances *MaintenanceService
 	Probes       *ProbeService
 	Teams        *TeamService
-	Tsm          *TsmService
+	Tms          *TmsService
 	PublicReport *PublicReportService
 	Users        *UserService
 }
@@ -72,7 +72,7 @@ func NewClientWithConfig(config ClientConfig) (*Client, error) {
 	c.Maintenances = &MaintenanceService{client: c}
 	c.Probes = &ProbeService{client: c}
 	c.Teams = &TeamService{client: c}
-	c.Tsm = &TsmService{client: c}
+	c.Tms = &TmsService{client: c}
 	c.PublicReport = &PublicReportService{client: c}
 	c.Users = &UserService{client: c}
 	return c, nil
