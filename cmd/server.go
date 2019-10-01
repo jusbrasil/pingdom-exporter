@@ -55,6 +55,11 @@ var (
 		Name: "pingdom_check_response_time",
 		Help: "The response time of last test in milliseconds",
 	}, []string{"id", "name", "hostname", "resolution", "paused", "tags"})
+
+	pingdomTransactionStatus = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "pingdom_transaction_status",
+		Help: "The current status of the transaction (1: successful, 0: failing)",
+	}, []string{"name", "kitchen", "paused", "tags"})
 )
 
 func init() {
@@ -66,10 +71,53 @@ func init() {
 	prometheus.MustRegister(pingdomUp)
 	prometheus.MustRegister(pingdomCheckStatus)
 	prometheus.MustRegister(pingdomCheckResponseTime)
+	prometheus.MustRegister(pingdomTransactionStatus)
 }
 
 func sleep() {
 	time.Sleep(time.Second * time.Duration(waitSeconds))
+}
+
+func retrieveTransactionMetrics(client *pingdom.Client) {
+	params := map[string]string{
+		"include_tags": "true",
+	}
+	tmsResults, err := client.Tms.List(params)
+	if err != nil {
+		log.Errorf("Error getting Tms: %v", err)
+		pingdomUp.Set(0)
+
+		return
+	}
+	pingdomUp.Set(1)
+
+	for _, tms := range tmsResults {
+		var status float64
+		switch tms.Status {
+		case "SUCCESSFUL":
+			status = 1
+		default:
+			status = 0
+		}
+
+		paused := "false"
+		if tms.Active == "NO" {
+			paused = "true"
+		}
+
+		var tagsRaw []string
+		for _, tag := range tms.Tags {
+			tagsRaw = append(tagsRaw, tag.Name)
+		}
+		tags := strings.Join(tagsRaw, ",")
+
+		pingdomTransactionStatus.WithLabelValues(
+			tms.Name,
+			tms.Kitchen,
+			paused,
+			tags,
+		).Set(status)
+	}
 }
 
 func retrieveChecksMetrics(client *pingdom.Client) {
@@ -164,6 +212,7 @@ func serverRun(cmd *cobra.Command, args []string) {
 	go func() {
 		for {
 			retrieveChecksMetrics(client)
+			retrieveTransactionMetrics(client)
 			sleep()
 		}
 	}()
