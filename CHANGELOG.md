@@ -1,3 +1,7 @@
+## 0.1.4 / 2019-10-02
+
+* [CHANGE] move exporter to the first available port `9158` from [Prometheus wiki](https://github.com/prometheus/prometheus/wiki/Default-port-allocations)
+
 ## 0.1.3 / 2019-10-02
 
 * [CHANGE] rename metric pingdom_check_status to pingdom_uptime_status
