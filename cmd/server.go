@@ -52,7 +52,7 @@ var (
 	}, []string{"id", "name", "hostname", "resolution", "paused", "tags"})
 
 	pingdomCheckResponseTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "pingdom_check_response_time",
+		Name: "pingdom_uptime_response_time",
 		Help: "The response time of last test in milliseconds",
 	}, []string{"id", "name", "hostname", "resolution", "paused", "tags"})
 
