@@ -122,6 +122,8 @@ docker-release:push:
     - docker login -u "$REGISTRY_USERNAME" -p "$REGISTRY_PASSWORD"
     - apk add --no-cache make go git
     - docker load -i image/linux-amd64.${CI_COMMIT_REF_NAME}.tar
+    - docker load -i image/linux-arm64.${CI_COMMIT_REF_NAME}.tar
+    - docker load -i image/linux-armv7.${CI_COMMIT_REF_NAME}.tar
   script:
     - make docker-publish DOCKER_IMAGE_TAG=${CI_COMMIT_REF_NAME} DOCKER_REPO=docker.io/vptech
     - make docker-manifest DOCKER_IMAGE_TAG=${CI_COMMIT_REF_NAME} DOCKER_REPO=docker.io/vptech
