@@ -1,60 +1,87 @@
-# How to contribute
+# Contributing
 
-`prometheus-pingdom-exporter` is Apache 2.0 licensed and accepts contributions via GitHub pull requests. This document outlines some of the conventions on commit message formatting, contact points for developers and other resources to make getting your contribution into `prometheus-pingdom-exporter` easier.
+Contributions are welcome, and they are greatly appreciated! Every little bit
+helps, and credit will always be given.
 
-# Email and chat
+You can contribute in many ways:
 
-- Email: [giantswarm](https://groups.google.com/forum/#!forum/giantswarm)
-- IRC: #[giantswarm](irc://irc.freenode.org:6667/#giantswarm) IRC channel on freenode.org
+### Report Bugs
 
-## Getting started
+Report bugs at https://github.com/strike-team/pingdom_exporter/issues.
 
-- Fork the repository on GitHub
-- Read the [README.md](https://github.com/giantswarm/prometheus-pingdom-exporter/blob/master/README.md) for build instructions
+If you are reporting a bug, please include:
 
-## Reporting Bugs and Creating Issues
+- Your operating system name and version.
+- Any details about your local setup that might be helpful in troubleshooting.
+- Detailed steps to reproduce the bug.
 
-Reporting bugs is one of the best ways to contribute. If you find bugs or documentation mistakes in the `prometheus-pingdom-exporter` project, please let us know by [opening an issue](https://github.com/giantswarm/prometheus-pingdom-exporter/issues/new). We treat bugs and mistakes very seriously and believe no issue is too small. Before creating a bug report, please check there that one does not already exist.
+### Fix Bugs
 
-To make your bug report accurate and easy to understand, please try to create bug reports that are:
+Look through the GitHub issues for bugs. Anything tagged with "bug" and "help
+wanted" is open to whoever wants to implement it.
 
-- Specific. Include as much details as possible: which version, what environment, what configuration, etc. You can also attach logs.
+### Implement Features
 
-- Reproducible. Include the steps to reproduce the problem. We understand some issues might be hard to reproduce, please includes the steps that might lead to the problem. If applicable, you can also attach affected data dir(s) and a stack trace to the bug report.
+Look through the GitHub issues for features. Anything tagged with "enhancement"
+and "help wanted" is open to whoever wants to implement it.
 
-- Isolated. Please try to isolate and reproduce the bug with minimum dependencies. It would significantly slow down the speed to fix a bug if too many dependencies are involved in a bug report. Debugging external systems that rely on `prometheus-pingdom-exporter` is out of scope, but we are happy to point you in the right direction or help you interact with `prometheus-pingdom-exporter` in the correct manner.
+### Write Documentation
 
-- Unique. Do not duplicate existing bug reports.
+pingdom_exporter could always use more documentation, whether as part of the
+official pingdom_exporter docs, in docstrings, or even on the web in blog posts,
+articles, and such.
 
-- Scoped. One bug per report. Do not follow up with another bug inside one report.
+### Submit Feedback
 
-You might also want to read [Elika Etemad’s article on filing good bug reports](http://fantasai.inkedblade.net/style/talks/filing-good-bugs/) before creating a bug report.
+The best way to send feedback is to file an issue at https://github.com/strike-team/pingdom_exporter/issues.
 
-We might ask you for further information to locate a bug. A duplicated bug report will be closed.
+If you are proposing a feature:
 
-## Contribution flow
+- Explain in detail how it would work.
+- Keep the scope as narrow as possible, to make it easier to implement.
+- Remember that this is a volunteer-driven project, and that contributions
+  are welcome :)
 
-This is a rough outline of what a contributor's workflow looks like:
+## Get Started!
 
-- Create a feature branch from where you want to base your work. This is usually master.
-- Make commits of logical units.
-- Make sure your commit messages are in the proper format (see below).
-- Push your changes to a topic branch in your fork of the repository.
-- Submit a pull request to giantswarm/prometheus-pingdom-exporter.
-- Adding unit tests will greatly improve the chance for getting a quick review and your PR accepted.
-- Your PR must receive a LGTM from one maintainer found in the MAINTAINERS file.
-- Before merging your PR be sure to squash all commits into one.
+Ready to contribute? Here's how to set up `pingdom_exporter` for local development.
 
-Thanks for your contributions!
+1. Fork the `pingdom_exporter` repo on GitHub.
+2. Clone your fork locally:
 
-### Code style
+```shell
+$ git clone git@github.com:your_name_here/pingdom_exporter.git
+```
 
-The coding style suggested by the Golang community is used. See the [style doc](https://github.com/golang/go/wiki/CodeReviewComments) for details.
+3. Create a branch for local development:
 
-Please follow this style to make the code easy to review, maintain, and develop.
+```shell
+$ git checkout -b name-of-your-bugfix-or-feature
+```
 
-### Format of the Commit Message
+    Now you can make your changes locally.
 
-We follow a rough convention for commit messages that is designed to answer two
-questions: what changed and why. The subject line should feature the what and
-the body of the commit should describe the why.
+4. When you're done making changes, check that your changes pass golangci-lint:
+
+```shell
+$ make lint
+```
+
+5. Commit your changes and push your branch to GitHub:
+
+```shell
+$ git add .
+$ git commit -m "Your detailed description of your changes."
+$ git push origin name-of-your-bugfix-or-feature
+```
+
+6. Submit a pull request through the GitHub website.
+
+## Pull Request Guidelines
+
+Before you submit a pull request, check that it meets these guidelines:
+
+1. The pull request should include tests.
+2. If the pull request adds functionality, the docs should be updated. Put
+   your new functionality into a function with a docstring.
+3. The pull request should work for Golang 1.13 or above.
