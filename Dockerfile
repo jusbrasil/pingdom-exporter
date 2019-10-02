@@ -6,5 +6,5 @@ ARG ARCH="amd64"
 ARG OS="linux"
 COPY .build/${OS}-${ARCH}/pingdom_exporter   /bin/pingdom_exporter
 
-EXPOSE     9652
+EXPOSE     9158
 ENTRYPOINT [ "/bin/pingdom_exporter" ]
