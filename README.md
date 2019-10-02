@@ -1,71 +1,41 @@
-# prometheus-pingdom-exporter
+# Pingdom exporter
 
-[![Build Status](https://api.travis-ci.org/giantswarm/prometheus-pingdom-exporter.svg)](https://travis-ci.org/giantswarm/prometheus-pingdom-exporter)
-[![Go Report Card](https://goreportcard.com/badge/github.com/giantswarm/prometheus-pingdom-exporter)](https://goreportcard.com/report/github.com/giantswarm/prometheus-pingdom-exporter)
-[![GoDoc](https://godoc.org/github.com/giantswarm/prometheus-pingdom-exporter?status.svg)](http://godoc.org/github.com/giantswarm/prometheus-pingdom-exporter)
-[![Docker](https://img.shields.io/docker/pulls/giantswarm/prometheus-pingdom-exporter.svg)](http://hub.docker.com/r/giantswarm/prometheus-pingdom-exporter) 
-[![IRC Channel](https://img.shields.io/badge/irc-%23giantswarm-blue.svg)](https://kiwiirc.com/client/irc.freenode.net/#giantswarm)
+[![Docker Pulls](https://img.shields.io/docker/pulls/vptech/pingdom-exporter.svg?maxAge=604800)][hub]
+[![Go Report Card](https://goreportcard.com/badge/github.com/strike-team/pingdom_exporter)][goreportcard]
 
-`prometheus-pingdom-exporter` exports Pingdom metrics to Prometheus.
+Prometheus exporter for uptime and transaction metrics exposed by Pingdom API, written in Go.
 
-## Prerequisites
+To run it:
 
-## Getting `prometheus-pingdom-exporter`
-
-Download the latest release: https://github.com/giantswarm/prometheus-pingdom-exporter/releases/latest
-
-Clone the git repository: https://github.com/giantswarm/prometheus-pingdom-exporter.git
-
-Download the latest docker image from here: https://hub.docker.com/r/giantswarm/prometheus-pingdom-exporter/
-
-
-### How to build
-
-#### Dependencies
-
-- [github.com/russellcardullo/go-pingdom](https://github.com/russellcardullo/go-pingdom)
-- [github.com/prometheus/client_golang](https://github.com/prometheus/client_golang)
-- [github.com/spf13/cobra](https://github.com/spf13/cobra)
-
-#### Building the binary
-
-```
+```bash
 make
+./pingdom_exporter server <pingdom_username> <pingdom_password> <pingdom_token>
 ```
 
-#### Building the docker image
+## Exported Metrics
 
+| Metric | Meaning | Labels |
+| ------ | ------- | ------ |
+| pingdom_up | Was the last query on Pingdom API successful, | |
+| pingdom_uptime_status | The current status of the check (1: up, 0: down). | |
+| pingdom_uptime_response_time | The response time of last test in milliseconds. | |
+| pingdom_transaction_status | The current status of the transaction (1: successful, 0: failing). | |
+
+## Using Docker
+
+You can deploy this exporter using the [vptech/pingdom-exporter](https://hub.docker.com/r/vptech/pingdom-exporter/) Docker image.
+
+For example:
+
+```bash
+docker pull vptech/pingdom-exporter
+
+docker run -d -p 9158:9158 \
+        vptech/pingdom-exporter \
+        <pingdom_username> \
+        <pingdom_password> \
+        <pingdom_token>
 ```
-make docker-image
-```
 
-
-## Running `prometheus-pingdom-exporter`
-
-Running the binary directly:
-```
-$ prometheus-pingdom-exporter server <USERNAME> <PASSWORD> <API-KEY>
-2016/07/09 12:20:51 Listening on port 8000
-```
-
-Running in a Docker container:
-```
-$ docker run -p 8000:8000 giantswarm/prometheus-pingdom-exporter:latest server <USERNAME> <PASSWORD> <API-KEY>
-2016/07/09 11:22:04 Listening on port 8000
-```
-
-Help information can be found with the `--help` flag.
-
-## Contact
-
-- Mailing list: [giantswarm](https://groups.google.com/forum/!forum/giantswarm)
-- IRC: #[giantswarm](irc://irc.freenode.org:6667/#giantswarm) on freenode.org
-- Bugs: [issues](https://github.com/giantswarm/prometheus-pingdom-exporter/issues)
-
-## Contributing & Reporting Bugs
-
-See [CONTRIBUTING](CONTRIBUTING.md) for details on submitting patches, the contribution workflow as well as reporting bugs.
-
-## License
-
-`prometheus-pingdom-exporter` is under the Apache 2.0 license. See the [LICENSE](LICENSE) file for details.
+[hub]: https://hub.docker.com/r/vptech/pingdom-exporter/
+[goreportcard]: https://goreportcard.com/report/github.com/strike-team/pingdom_exporter
