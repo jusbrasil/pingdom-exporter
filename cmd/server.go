@@ -47,8 +47,8 @@ var (
 	})
 
 	pingdomCheckStatus = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "pingdom_check_status",
-		Help: "The current status of the check (0: up, 1: unconfirmed_down, 2: down, -1: paused, -2: unknown)",
+		Name: "pingdom_uptime_status",
+		Help: "The current status of the check (1: up, 0: down)",
 	}, []string{"id", "name", "hostname", "resolution", "paused", "tags"})
 
 	pingdomCheckResponseTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
