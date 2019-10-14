@@ -10,14 +10,6 @@ type CheckService struct {
 	client *Client
 }
 
-// Check is an interface representing a Pingdom check.
-// Specific check types should implement the methods of this interface.
-type Check interface {
-	PutParams() map[string]string
-	PostParams() map[string]string
-	Valid() error
-}
-
 // List returns a list of checks from Pingdom.
 // This returns type CheckResponse rather than Check since the
 // Pingdom API does not return a complete representation of a check.
