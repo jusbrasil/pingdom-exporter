@@ -1,10 +1,7 @@
-ARG ARCH="amd64"
-ARG OS="linux"
-FROM quay.io/prometheus/busybox-${OS}-${ARCH}:latest
+FROM centurylink/ca-certs
+MAINTAINER Daniel Martins <daniel.martins@jusbrasil.com.br>
 
-ARG ARCH="amd64"
-ARG OS="linux"
-COPY .build/${OS}-${ARCH}/pingdom_exporter   /bin/pingdom_exporter
+COPY ./bin/pingdom_exporter /pindom_exporter
+ENTRYPOINT ["/pingdom_exporter"]
 
-EXPOSE     9158
-ENTRYPOINT [ "/bin/pingdom_exporter" ]
+USER 65534:65534

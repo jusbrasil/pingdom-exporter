@@ -1,5 +1,2 @@
-/.build
-/.release
-/.tarballs
-/pingdom_exporter
-*.tar.gz
+bin
+vendor

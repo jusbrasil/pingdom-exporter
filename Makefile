@@ -1,7 +1,33 @@
-# Needs to be defined before including Makefile.common to auto-generate targets
-DOCKER_ARCHS ?= amd64 armv7 arm64
-DOCKER_REPO  ?= vptech
+GO=CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go
+TAG=1.0.0
+BIN=pingdom_exporter
+IMAGE=jusbrasil/$(BIN)
 
-include Makefile.common
+.PHONY: build
+build:
+	$(GO) build -a --ldflags "-X main.VERSION=$(TAG) -w -extldflags '-static'" -tags netgo -o bin/$(BIN) ./cmd/$(BIN)
 
-DOCKER_IMAGE_NAME ?= pingdom-exporter
+.PHONY: image
+image: build
+	docker build -t $(IMAGE):$(TAG) .
+
+.PHONY: push
+push: image
+	docker push $(IMAGE):$(TAG)
+
+.PHONY: push-latest
+push-latest: image
+	docker tag $(IMAGE):$(TAG) $(IMAGE):latest
+	docker push $(IMAGE):latest
+
+.PHONY: clean
+clean:
+	rm -Rf bin/ cover*
+
+.PHONY: test
+test:
+	ls
+
+.PHONY: cover
+cover:
+	ls
