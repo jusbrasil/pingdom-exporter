@@ -1,6 +1,6 @@
 # Pingdom Metrics Exporter for Prometheus
 
-Prometheus exporter for uptime and transaction metrics exposed by Pingdom API.
+Prometheus exporter for uptime metrics exposed by the Pingdom API.
 
 ## Running
 
