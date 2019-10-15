@@ -14,9 +14,6 @@ image: build
 .PHONY: push
 push: image
 	docker push $(IMAGE):$(TAG)
-
-.PHONY: push-latest
-push-latest: image
 	docker tag $(IMAGE):$(TAG) $(IMAGE):latest
 	docker push $(IMAGE):latest
 

@@ -71,5 +71,5 @@ make cover
 make image
 
 # Push Docker images to registry
-make push push-latest
+make push
 ```
