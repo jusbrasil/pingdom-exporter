@@ -2,18 +2,20 @@
 
 Prometheus exporter for uptime and transaction metrics exposed by Pingdom API.
 
-To run it:
+## Running
+
+Make sure you expose the Pingdom API Token via the `PINGDOM_API_TOKEN`
+environment variable:
 
 ```sh
-make
-
-# Provide the API token via an environment variable
+# Expose the Pingdom API Token
 export PINGDOM_API_TOKEN=<api-token>
 
+# Run the binary with the default options
 bin/pingdom-exporter
 ```
 
-## Options
+### Usage
 
 ```sh
 $ bin/pingdom-exporter -h
@@ -24,6 +26,18 @@ Usage of bin/pingdom-exporter:
     	port to listen on (default 9158)
   -wait int
     	time (in seconds) between accessing the Pingdom  API (default 60)
+```
+
+### Docker Image
+
+You can run this exporter using the
+[jusbrasil/pingdom-exporter](https://hub.docker.com/r/jusbrasil/pingdom-exporter/)
+Docker image:
+
+```bash
+docker run -d -p 9158:9158 \
+        -e PINGDOM_API_TOKEN=<api-token> \
+        jusbrasil/pingdom-exporter
 ```
 
 ## Exported Metrics
@@ -38,14 +52,23 @@ Usage of bin/pingdom-exporter:
 | `pingdom_down_seconds`                 | Total down time within the outage check period.                      |
 | `pingdom_up_seconds`                   | Total up time within the outage check period.                        |
 
-## Using Docker
+## Development
 
-You can deploy this exporter using the
-[jusbrasil/pingdom-exporter](https://hub.docker.com/r/jusbrasil/pingdom-exporter/)
-Docker image:
+All relevant commands are exposed via Makefile targets:
 
-```bash
-docker run -d -p 9158:9158 \
-        -e PINGDOM_API_TOKEN=<api-token> \
-        jusbrasil/pingdom-exporter
+```sh
+# Build the binary
+make
+
+# Run the tests
+make test
+
+# Run the tests with coverage information
+make cover
+
+# Build Docker image
+make image
+
+# Push Docker images to registry
+make push push-latest
 ```
