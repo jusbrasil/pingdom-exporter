@@ -13,6 +13,7 @@ type Server struct {
 	mux    *http.ServeMux
 }
 
+// NewServer returns a new HTTP server for exposing Prometheus metrics.
 func NewServer() *Server {
 	s := &Server{
 		logger: promlog.NewErrorLogger(),
@@ -25,6 +26,7 @@ func NewServer() *Server {
 	return s
 }
 
+// ServeHTTP handles incoming HTTP requests.
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.mux.ServeHTTP(w, r)
 }
