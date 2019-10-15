@@ -20,8 +20,7 @@ var (
 	// VERSION will hold the version number injected during the build.
 	VERSION string
 
-	token = os.Getenv("PINGDOM_API_TOKEN")
-
+	token             string
 	waitSeconds       int
 	port              int
 	outageCheckPeriod int
@@ -186,6 +185,7 @@ func main() {
 	var client *pingdom.Client
 	flag.Parse()
 
+	token = os.Getenv("PINGDOM_API_TOKEN")
 	if token == "" {
 		log.Errorln("Pingdom API token must be provided via the PINGDOM_API_TOKEN environment variable, exiting")
 		os.Exit(1)
