@@ -53,10 +53,6 @@ type CheckResponse struct {
 	Teams                    []CheckTeamResponse `json:"teams,omitempty"`
 	ResponseTimeThreshold    int                 `json:"responsetime_threshold,omitempty"`
 	ProbeFilters             []string            `json:"probe_filters,omitempty"`
-
-	// Legacy; this is not returned by the API, we backfill the value from the
-	// Teams field.
-	TeamIds []int
 }
 
 // CheckTeamResponse holds the team names for each check.
