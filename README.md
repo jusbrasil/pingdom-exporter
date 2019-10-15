@@ -26,7 +26,7 @@ Usage of bin/pingdom-exporter:
   -port int
     	port to listen on (default 9158)
   -wait int
-    	time (in seconds) between accessing the Pingdom  API (default 60)
+    	time (in seconds) between accessing the Pingdom API (default 60)
 ```
 
 ### Docker Image
