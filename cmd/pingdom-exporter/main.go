@@ -53,12 +53,12 @@ var (
 
 	pingdomDownTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "pingdom_down_seconds",
-		Help: "Total down time within the outage check period",
+		Help: "Total down time within the outage check period, in seconds",
 	}, []string{"id", "name", "hostname", "tags"})
 
 	pingdomUpTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "pingdom_up_seconds",
-		Help: "Total up time within the outage check period",
+		Help: "Total up time within the outage check period, in seconds",
 	}, []string{"id", "name", "hostname", "tags"})
 )
 

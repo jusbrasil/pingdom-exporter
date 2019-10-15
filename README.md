@@ -50,8 +50,8 @@ docker run -d -p 9158:9158 \
 | `pingdom_uptime_response_time_seconds` | The response time of last test, in seconds                          |
 | `pingdom_outage_check_period_seconds`  | Outage check period, in seconds (see the -outage-check-period flag) |
 | `pingdom_outages_total`                | Number of outages within the outage check period                    |
-| `pingdom_down_seconds`                 | Total down time within the outage check period                      |
-| `pingdom_up_seconds`                   | Total up time within the outage check period                        |
+| `pingdom_down_seconds`                 | Total down time within the outage check period, in seconds          |
+| `pingdom_up_seconds`                   | Total up time within the outage check period, in seconds            |
 
 ## Development
 
