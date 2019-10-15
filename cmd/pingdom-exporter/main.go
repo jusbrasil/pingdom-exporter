@@ -62,7 +62,7 @@ var (
 )
 
 func init() {
-	flag.IntVar(&waitSeconds, "wait", 60, "time (in seconds) between accessing the Pingdom API")
+	flag.IntVar(&waitSeconds, "wait", 60, "time (in seconds) to wait between each metrics update")
 	flag.IntVar(&port, "port", 9158, "port to listen on")
 	flag.IntVar(&outageCheckPeriod, "outage-check-period", 7, "time (in days) in which to retrieve outage data from the Pingdom API")
 
