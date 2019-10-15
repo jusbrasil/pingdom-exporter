@@ -17,8 +17,9 @@ bin/pingdom-exporter
 
 ### Usage
 
-```sh
-$ bin/pingdom-exporter -h
+```
+bin/pingdom-exporter -h
+
 Usage of bin/pingdom-exporter:
   -outage-check-period int
     	time (in days) in which to retrieve outage data from the Pingdom API (default 7)
@@ -42,15 +43,15 @@ docker run -d -p 9158:9158 \
 
 ## Exported Metrics
 
-| Metric                                 | Description                                                          |
-| -------------------------------------- | -------------------------------------------------------------------- |
-| `pingdom_up`                           | Was the last query on Pingdom API successful.                        |
-| `pingdom_uptime_status`                | The current status of the check (1: up, 0: down).                    |
-| `pingdom_uptime_response_time_seconds` | The response time of last test, in seconds.                          |
-| `pingdom_outage_check_period_seconds`  | Outage check period, in seconds (see the -outage-check-period flag). |
-| `pingdom_outages_total`                | Number of outages within the outage check period.                    |
-| `pingdom_down_seconds`                 | Total down time within the outage check period.                      |
-| `pingdom_up_seconds`                   | Total up time within the outage check period.                        |
+| Metric Name                            | Description                                                         |
+| -------------------------------------- | ------------------------------------------------------------------- |
+| `pingdom_up`                           | Was the last query on Pingdom API successful                        |
+| `pingdom_uptime_status`                | The current status of the check (1: up, 0: down)                    |
+| `pingdom_uptime_response_time_seconds` | The response time of last test, in seconds                          |
+| `pingdom_outage_check_period_seconds`  | Outage check period, in seconds (see the -outage-check-period flag) |
+| `pingdom_outages_total`                | Number of outages within the outage check period                    |
+| `pingdom_down_seconds`                 | Total down time within the outage check period                      |
+| `pingdom_up_seconds`                   | Total up time within the outage check period                        |
 
 ## Development
 
