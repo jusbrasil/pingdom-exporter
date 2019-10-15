@@ -7,6 +7,10 @@ IMAGE=jusbrasil/$(BIN)
 build:
 	$(GO) build -a --ldflags "-X main.VERSION=$(TAG) -w -extldflags '-static'" -tags netgo -o bin/$(BIN) ./cmd/$(BIN)
 
+.PHONY: lint
+lint:
+	golint ./pkg/... ./cmd/...
+
 .PHONY: image
 image: build
 	docker build -t $(IMAGE):$(TAG) .

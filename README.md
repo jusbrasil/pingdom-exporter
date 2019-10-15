@@ -64,6 +64,9 @@ make
 # Run the tests
 make test
 
+# Check linting rules
+make lint
+
 # Run the tests with coverage information
 make cover
 

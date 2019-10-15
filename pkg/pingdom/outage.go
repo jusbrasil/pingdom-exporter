@@ -6,19 +6,19 @@ import (
 	"io/ioutil"
 )
 
-// OutageService provides an interface to Pingdom outage summary.
+// OutageSummaryService provides an interface to Pingdom outage summary.
 type OutageSummaryService struct {
 	client *Client
 }
 
 // List returns a list of outage summaries from Pingdom.
-func (os *OutageSummaryService) List(checkId int, params ...map[string]string) ([]OutageSummaryResponseState, error) {
+func (os *OutageSummaryService) List(checkID int, params ...map[string]string) ([]OutageSummaryResponseState, error) {
 	param := map[string]string{}
 	if len(params) == 1 {
 		param = params[0]
 	}
 
-	req, err := os.client.NewRequest("GET", fmt.Sprintf("/summary.outage/%d", checkId), param)
+	req, err := os.client.NewRequest("GET", fmt.Sprintf("/summary.outage/%d", checkID), param)
 	if err != nil {
 		return nil, err
 	}

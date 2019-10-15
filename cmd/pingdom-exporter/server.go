@@ -8,6 +8,7 @@ import (
 	promlog "github.com/prometheus/common/log"
 )
 
+// Server is the object that implements the HTTP server for the exporter.
 type Server struct {
 	logger *log.Logger
 	mux    *http.ServeMux

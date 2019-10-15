@@ -59,6 +59,7 @@ type CheckResponse struct {
 	TeamIds []int
 }
 
+// CheckTeamResponse holds the team names for each check.
 type CheckTeamResponse struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`

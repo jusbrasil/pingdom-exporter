@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	// Injected during the build.
+	// VERSION will hold the version number injected during the build.
 	VERSION string
 
 	token = os.Getenv("PINGDOM_API_TOKEN")
