@@ -3,6 +3,7 @@ package pingdom
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 // Response represents a general response from the Pingdom API.
@@ -15,6 +16,18 @@ type Error struct {
 	StatusCode int    `json:"statuscode"`
 	StatusDesc string `json:"statusdesc"`
 	Message    string `json:"errormessage"`
+}
+
+// OutageSummaryResponse represents the JSON response for a outage summary list from the Pingdom API.
+type OutageSummaryResponse struct {
+	States []OutageSummaryResponseState `json:"states"`
+}
+
+// OutageSummaryResponseState represents the JSON response for each outage summary.
+type OutageSummaryResponseState struct {
+	Status   string `json:"status"`
+	FromTime int64  `json:"timefrom"`
+	ToTime   int64  `json:"timeto"`
 }
 
 // CheckResponse represents the JSON response for a check from the Pingdom API.
@@ -146,10 +159,23 @@ func (r *Error) Error() string {
 	return fmt.Sprintf("%d %v: %v", r.StatusCode, r.StatusDesc, r.Message)
 }
 
+// TagsString returns the check tags as a comma-separated string.
+func (cr *CheckResponse) TagsString() string {
+	var tagsRaw []string
+	for _, tag := range cr.Tags {
+		tagsRaw = append(tagsRaw, tag.Name)
+	}
+	return strings.Join(tagsRaw, ",")
+}
+
 // private types used to unmarshall JSON responses from Pingdom.
 
 type listChecksJSONResponse struct {
 	Checks []CheckResponse `json:"checks"`
+}
+
+type listOutageSummaryJSONResponse struct {
+	Summary OutageSummaryResponse `json:"summary"`
 }
 
 type errorJSONResponse struct {

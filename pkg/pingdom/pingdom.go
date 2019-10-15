@@ -19,7 +19,9 @@ type Client struct {
 	Token   string
 	BaseURL *url.URL
 	client  *http.Client
-	Checks  *CheckService
+
+	Checks        *CheckService
+	OutageSummary *OutageSummaryService
 }
 
 // ClientConfig represents a configuration for a pingdom client.
@@ -54,6 +56,7 @@ func NewClientWithConfig(config ClientConfig) (*Client, error) {
 	}
 
 	c.Checks = &CheckService{client: c}
+	c.OutageSummary = &OutageSummaryService{client: c}
 
 	return c, nil
 }

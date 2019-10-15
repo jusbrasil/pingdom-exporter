@@ -1,6 +1,6 @@
 GO=CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go
 TAG=1.0.0
-BIN=pingdom_exporter
+BIN=pingdom-exporter
 IMAGE=jusbrasil/$(BIN)
 
 .PHONY: build
@@ -24,10 +24,12 @@ push-latest: image
 clean:
 	rm -Rf bin/ cover*
 
-.PHONY: test
-test:
-	ls
-
 .PHONY: cover
 cover:
-	ls
+	go test -coverprofile=coverage.out ./...
+	go tool cover -func=coverage.out
+
+.PHONY: test
+test:
+	go test ./...
+
