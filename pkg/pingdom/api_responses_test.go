@@ -7,11 +7,7 @@ import (
 )
 
 func TestErrorError(t *testing.T) {
-	errorResponse := Error{
-		StatusCode: 200,
-		StatusDesc: "OK",
-		Message:    "Message",
-	}
+	errorResponse := Error{200, "OK", "Message"}
 	assert.Equal(t, "200 OK: Message", errorResponse.Error())
 }
 
