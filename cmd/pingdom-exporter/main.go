@@ -93,10 +93,7 @@ func retrieveMetrics(client *pingdom.Client) {
 		resolution := strconv.Itoa(check.Resolution)
 
 		var status float64
-		paused := strconv.FormatBool(check.Paused)
-
-		// Pingdom library doesn't report paused correctly,
-		// so calculate it off the status.
+		paused := "false"
 		if check.Status == "paused" {
 			paused = "true"
 		} else if check.Status == "up" {

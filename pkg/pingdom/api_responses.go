@@ -44,7 +44,6 @@ type CheckResponse struct {
 	LastErrorTime            int64               `json:"lasterrortime,omitempty"`
 	LastTestTime             int64               `json:"lasttesttime,omitempty"`
 	LastResponseTime         int64               `json:"lastresponsetime,omitempty"`
-	Paused                   bool                `json:"paused,omitempty"`
 	IntegrationIds           []int               `json:"integrationids,omitempty"`
 	SeverityLevel            string              `json:"severity_level,omitempty"`
 	Type                     CheckResponseType   `json:"type,omitempty"`
