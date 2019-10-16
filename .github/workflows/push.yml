@@ -1,0 +1,17 @@
+name: Build Docker image
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Build image
+      run: make docker-build
+
+    # TODO: Push image to registry
