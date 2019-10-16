@@ -16,8 +16,12 @@ jobs:
     - name: Build image
       run: make docker-build
 
-    - name: Login to Docker Hub
+    - name: Sign in to Docker Hub
       run: echo -n ${{secrets.DOCKER_HUB_PASSWORD}} | docker login -u ${{secrets.DOCKER_HUB_USERNAME}} --password-stdin
 
     - name: Push image to registry
       run: make docker-push
+
+    - name: Sign out from Docker Hub
+      if: always()
+      run: docker logout
