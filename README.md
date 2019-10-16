@@ -67,12 +67,9 @@ make test
 # Check linting rules
 make lint
 
-# Run the tests with coverage information
-make cover
-
 # Build Docker image
-make image
+make docker-build
 
 # Push Docker images to registry
-make push
+make docker-push
 ```

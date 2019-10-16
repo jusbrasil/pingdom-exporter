@@ -7,30 +7,25 @@ IMAGE=jusbrasil/$(BIN)
 build:
 	$(GO) build -a --ldflags "-X main.VERSION=$(TAG) -w -extldflags '-static'" -tags netgo -o bin/$(BIN) ./cmd/$(BIN)
 
-.PHONY: lint
-lint:
-	golint ./pkg/... ./cmd/...
-
-.PHONY: image
-image: build
-	docker build -t $(IMAGE):$(TAG) .
-
-.PHONY: push
-push: image
-	docker push $(IMAGE):$(TAG)
-	docker tag $(IMAGE):$(TAG) $(IMAGE):latest
-	docker push $(IMAGE):latest
-
-.PHONY: clean
-clean:
-	rm -Rf bin/ cover*
-
-.PHONY: cover
-cover:
+.PHONY: test
+test:
+	go vet ./...
 	go test -coverprofile=coverage.out ./...
 	go tool cover -func=coverage.out
 
-.PHONY: test
-test:
-	go test ./...
+.PHONY: lint
+lint:
+	go get -u golang.org/x/lint/golint
+	golint ./...
 
+# Build the Docker build stage TARGET
+.PHONY: docker-build
+docker-build:
+	docker build -t $(IMAGE):$(TAG) .
+
+# Push Docker images to the registry
+.PHONY: docker-push
+docker-push:
+	docker push $(IMAGE):$(TAG)
+	docker tag $(IMAGE):$(TAG) $(IMAGE):latest
+	docker push $(IMAGE):latest

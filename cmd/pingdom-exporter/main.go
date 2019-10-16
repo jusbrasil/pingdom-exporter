@@ -232,7 +232,9 @@ func main() {
 	<-done
 	log.Infof("Received shutdown signal, exiting")
 
-	ctx, _ := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
 	h.Shutdown(ctx)
 	log.Infoln("Server gracefully stopped")
 }
