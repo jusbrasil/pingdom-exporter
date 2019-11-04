@@ -3,8 +3,16 @@ package pingdom
 import (
 	"encoding/json"
 	"fmt"
+	"math"
+	"regexp"
+	"strconv"
 	"strings"
+
+	"github.com/prometheus/common/log"
 )
+
+// Uptime SLO tag format.
+var uptimeSLORegexp = regexp.MustCompile(`^uptime_slo_(?P<SLO>\d+)$`)
 
 // Response represents a general response from the Pingdom API.
 type Response struct {
@@ -162,6 +170,28 @@ func (cr *CheckResponse) TagsString() string {
 		tagsRaw = append(tagsRaw, tag.Name)
 	}
 	return strings.Join(tagsRaw, ",")
+}
+
+// UptimeSLOFromTag returns the uptime SLO configured to this check via a tag,
+// i.e. "uptime_slo_999" for 99.9 uptime SLO. Returns the argument as the
+// default uptime SLO in case no uptime SLO tag exists for this check.
+func (cr *CheckResponse) UptimeSLOFromTags(defaultUptimeSLO float64) float64 {
+	for _, tag := range cr.Tags {
+		matches := uptimeSLORegexp.FindStringSubmatch(tag.Name)
+
+		if len(matches) > 0 {
+			n, err := strconv.ParseFloat(matches[1], 64)
+
+			if err != nil {
+				log.Errorf("Error parsing uptime SLO tag %s: %v", matches[1], err)
+				break
+			}
+
+			return n / math.Pow(10, math.Max(0, float64(len(matches[1])-2)))
+		}
+	}
+
+	return defaultUptimeSLO
 }
 
 // private types used to unmarshall JSON responses from Pingdom.
