@@ -24,10 +24,16 @@ var (
 	waitSeconds       int
 	port              int
 	outageCheckPeriod int
+	defaultUptimeSLO  float64
 
 	pingdomUp = prometheus.NewGauge(prometheus.GaugeOpts{
 		Name: "pingdom_up",
 		Help: "Whether the last pingdom scrape was successfull (1: up, 0: down)",
+	})
+
+	pingdomOutageCheckPeriod = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "pingdom_slo_period_seconds",
+		Help: "Outage check period, in seconds",
 	})
 
 	pingdomCheckStatus = prometheus.NewGaugeVec(prometheus.GaugeOpts{
@@ -40,14 +46,19 @@ var (
 		Help: "The response time of last test, in seconds",
 	}, []string{"id", "name", "hostname", "resolution", "paused", "tags"})
 
-	pingdomOutageCheckPeriod = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "pingdom_outage_check_period_seconds",
-		Help: "Outage check period, in seconds",
-	}, []string{})
-
 	pingdomOutages = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "pingdom_outages_total",
 		Help: "Number of outages within the outage check period",
+	}, []string{"id", "name", "hostname", "tags"})
+
+	pingdomCheckErrorBudget = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "pingdom_uptime_slo_error_budget_total_seconds",
+		Help: "Maximum number of allowed downtime, in seconds, according to the uptime SLO",
+	}, []string{"id", "name", "hostname", "tags"})
+
+	pingdomCheckAvailableErrorBudget = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "pingdom_uptime_slo_error_budget_available_seconds",
+		Help: "Number of seconds of downtime we can still have without breaking the uptime SLO",
 	}, []string{"id", "name", "hostname", "tags"})
 
 	pingdomDownTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
@@ -65,6 +76,7 @@ func init() {
 	flag.IntVar(&waitSeconds, "wait", 60, "time (in seconds) to wait between each metrics update")
 	flag.IntVar(&port, "port", 9158, "port to listen on")
 	flag.IntVar(&outageCheckPeriod, "outage-check-period", 7, "time (in days) in which to retrieve outage data from the Pingdom API")
+	flag.Float64Var(&defaultUptimeSLO, "default-uptime-slo", 99.0, "default uptime SLO to be used when the check doesn't provide a uptime SLO tag (i.e. uptime_slo_999 to 99.9% uptime SLO)")
 
 	prometheus.MustRegister(pingdomUp)
 	prometheus.MustRegister(pingdomCheckStatus)
@@ -73,6 +85,8 @@ func init() {
 	prometheus.MustRegister(pingdomOutages)
 	prometheus.MustRegister(pingdomDownTime)
 	prometheus.MustRegister(pingdomUpTime)
+	prometheus.MustRegister(pingdomCheckErrorBudget)
+	prometheus.MustRegister(pingdomCheckAvailableErrorBudget)
 }
 
 func retrieveMetrics(client *pingdom.Client) {
@@ -129,10 +143,15 @@ func retrieveOutagesForCheck(client *pingdom.Client, check pingdom.CheckResponse
 	tags := check.TagsString()
 
 	now := time.Now()
+
 	outageCheckPeriodDuration := time.Hour * time.Duration(24*outageCheckPeriod)
+	outageCheckPeriodSecs := float64(outageCheckPeriodDuration / time.Second)
 
 	// Register outage check period as a metric
-	pingdomOutageCheckPeriod.WithLabelValues().Set(float64(outageCheckPeriodDuration / time.Second))
+	pingdomOutageCheckPeriod.Set(outageCheckPeriodSecs)
+
+	// Maximum allowed downtime, in seconds, according to the uptime SLO
+	uptimeErrorBudget := outageCheckPeriodSecs * (100.0 - check.UptimeSLOFromTags(defaultUptimeSLO)) / 100.0
 
 	// Retrieve the list of outages within the outage period for the given check
 	states, err := client.OutageSummary.List(check.ID, map[string]string{
@@ -176,6 +195,20 @@ func retrieveOutagesForCheck(client *pingdom.Client, check pingdom.CheckResponse
 		check.Hostname,
 		tags,
 	).Set(downTime)
+
+	pingdomCheckErrorBudget.WithLabelValues(
+		id,
+		check.Name,
+		check.Hostname,
+		tags,
+	).Set(uptimeErrorBudget)
+
+	pingdomCheckAvailableErrorBudget.WithLabelValues(
+		id,
+		check.Name,
+		check.Hostname,
+		tags,
+	).Set(uptimeErrorBudget - downTime)
 }
 
 func main() {
