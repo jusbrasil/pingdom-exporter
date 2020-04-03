@@ -184,7 +184,7 @@ func (cr *CheckResponse) HasIgnoreTag() bool {
 	return false
 }
 
-// UptimeSLOFromTag returns the uptime SLO configured to this check via a tag,
+// UptimeSLOFromTags returns the uptime SLO configured to this check via a tag,
 // i.e. "uptime_slo_999" for 99.9 uptime SLO. Returns the argument as the
 // default uptime SLO in case no uptime SLO tag exists for this check.
 func (cr *CheckResponse) UptimeSLOFromTags(defaultUptimeSLO float64) float64 {

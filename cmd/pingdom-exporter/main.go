@@ -86,11 +86,11 @@ func init() {
 	flag.Float64Var(&defaultUptimeSLO, "default-uptime-slo", 99.0, "default uptime SLO to be used when the check doesn't provide a uptime SLO tag (i.e. uptime_slo_999 to 99.9% uptime SLO)")
 }
 
-type PingdomCollector struct {
+type pingdomCollector struct {
 	client *pingdom.Client
 }
 
-func (pc PingdomCollector) Describe(ch chan<- *prometheus.Desc) {
+func (pc pingdomCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- pingdomUpDesc
 	ch <- pingdomOutageCheckPeriodDesc
 	ch <- pingdomCheckStatusDesc
@@ -102,7 +102,7 @@ func (pc PingdomCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- pingdomOutagesDesc
 }
 
-func (pc PingdomCollector) Collect(ch chan<- prometheus.Metric) {
+func (pc pingdomCollector) Collect(ch chan<- prometheus.Metric) {
 	outageCheckPeriodDuration := time.Hour * time.Duration(24*outageCheckPeriod)
 	outageCheckPeriodSecs := float64(outageCheckPeriodDuration / time.Second)
 
@@ -287,12 +287,12 @@ func main() {
 	}
 
 	registry := prometheus.NewPedanticRegistry()
-	pingdomCollector := PingdomCollector{
+	collector := pingdomCollector{
 		client: client,
 	}
 
 	registry.MustRegister(
-		pingdomCollector,
+		collector,
 		prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}),
 		prometheus.NewGoCollector(),
 	)
