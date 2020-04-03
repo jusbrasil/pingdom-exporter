@@ -1,18 +1,17 @@
 package main
 
 import (
-	"context"
 	"flag"
 	"fmt"
 	"net/http"
 	"os"
-	"os/signal"
 	"strconv"
-	"syscall"
+	"sync"
 	"time"
 
 	"github.com/jusbrasil/pingdom-exporter/pkg/pingdom"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
 )
 
@@ -26,82 +25,122 @@ var (
 	outageCheckPeriod int
 	defaultUptimeSLO  float64
 
-	pingdomUp = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "pingdom_up",
-		Help: "Whether the last pingdom scrape was successfull (1: up, 0: down)",
-	})
+	pingdomUpDesc = prometheus.NewDesc(
+		"pingdom_up",
+		"Whether the last pingdom scrape was successfull (1: up, 0: down).",
+		nil, nil,
+	)
 
-	pingdomOutageCheckPeriod = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "pingdom_slo_period_seconds",
-		Help: "Outage check period, in seconds",
-	})
+	pingdomOutageCheckPeriodDesc = prometheus.NewDesc(
+		"pingdom_slo_period_seconds",
+		"Outage check period, in seconds",
+		nil, nil,
+	)
 
-	pingdomCheckStatus = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "pingdom_uptime_status",
-		Help: "The current status of the check (1: up, 0: down)",
-	}, []string{"id", "name", "hostname", "resolution", "paused", "tags"})
+	pingdomCheckStatusDesc = prometheus.NewDesc(
+		"pingdom_uptime_status",
+		"The current status of the check (1: up, 0: down)",
+		[]string{"id", "name", "hostname", "resolution", "paused", "tags"}, nil,
+	)
 
-	pingdomCheckResponseTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "pingdom_uptime_response_time_seconds",
-		Help: "The response time of last test, in seconds",
-	}, []string{"id", "name", "hostname", "resolution", "paused", "tags"})
+	pingdomCheckResponseTimeDesc = prometheus.NewDesc(
+		"pingdom_uptime_response_time_seconds",
+		"The response time of last test, in seconds",
+		[]string{"id", "name", "hostname", "resolution", "paused", "tags"}, nil,
+	)
 
-	pingdomOutages = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "pingdom_outages_total",
-		Help: "Number of outages within the outage check period",
-	}, []string{"id", "name", "hostname", "tags"})
+	pingdomOutagesDesc = prometheus.NewDesc(
+		"pingdom_outages_total",
+		"Number of outages within the outage check period",
+		[]string{"id", "name", "hostname", "tags"}, nil,
+	)
 
-	pingdomCheckErrorBudget = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "pingdom_uptime_slo_error_budget_total_seconds",
-		Help: "Maximum number of allowed downtime, in seconds, according to the uptime SLO",
-	}, []string{"id", "name", "hostname", "tags"})
+	pingdomCheckErrorBudgetDesc = prometheus.NewDesc(
+		"pingdom_uptime_slo_error_budget_total_seconds",
+		"Maximum number of allowed downtime, in seconds, according to the uptime SLO",
+		[]string{"id", "name", "hostname", "tags"}, nil,
+	)
 
-	pingdomCheckAvailableErrorBudget = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "pingdom_uptime_slo_error_budget_available_seconds",
-		Help: "Number of seconds of downtime we can still have without breaking the uptime SLO",
-	}, []string{"id", "name", "hostname", "tags"})
+	pingdomCheckAvailableErrorBudgetDesc = prometheus.NewDesc(
+		"pingdom_uptime_slo_error_budget_available_seconds",
+		"Number of seconds of downtime we can still have without breaking the uptime SLO",
+		[]string{"id", "name", "hostname", "tags"}, nil,
+	)
 
-	pingdomDownTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "pingdom_down_seconds",
-		Help: "Total down time within the outage check period, in seconds",
-	}, []string{"id", "name", "hostname", "tags"})
+	pingdomDownTimeDesc = prometheus.NewDesc(
+		"pingdom_down_seconds",
+		"Total down time within the outage check period, in seconds",
+		[]string{"id", "name", "hostname", "tags"}, nil,
+	)
 
-	pingdomUpTime = prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "pingdom_up_seconds",
-		Help: "Total up time within the outage check period, in seconds",
-	}, []string{"id", "name", "hostname", "tags"})
+	pingdomUpTimeDesc = prometheus.NewDesc(
+		"pingdom_up_seconds",
+		"Total up time within the outage check period, in seconds",
+		[]string{"id", "name", "hostname", "tags"}, nil,
+	)
 )
 
 func init() {
-	flag.IntVar(&waitSeconds, "wait", 60, "time (in seconds) to wait between each metrics update")
 	flag.IntVar(&port, "port", 9158, "port to listen on")
 	flag.IntVar(&outageCheckPeriod, "outage-check-period", 7, "time (in days) in which to retrieve outage data from the Pingdom API")
 	flag.Float64Var(&defaultUptimeSLO, "default-uptime-slo", 99.0, "default uptime SLO to be used when the check doesn't provide a uptime SLO tag (i.e. uptime_slo_999 to 99.9% uptime SLO)")
-
-	prometheus.MustRegister(pingdomUp)
-	prometheus.MustRegister(pingdomCheckStatus)
-	prometheus.MustRegister(pingdomCheckResponseTime)
-	prometheus.MustRegister(pingdomOutageCheckPeriod)
-	prometheus.MustRegister(pingdomOutages)
-	prometheus.MustRegister(pingdomDownTime)
-	prometheus.MustRegister(pingdomUpTime)
-	prometheus.MustRegister(pingdomCheckErrorBudget)
-	prometheus.MustRegister(pingdomCheckAvailableErrorBudget)
 }
 
-func retrieveMetrics(client *pingdom.Client) {
-	checks, err := client.Checks.List(map[string]string{
+type PingdomCollector struct {
+	client *pingdom.Client
+}
+
+func (pc PingdomCollector) Describe(ch chan<- *prometheus.Desc) {
+	ch <- pingdomUpDesc
+	ch <- pingdomOutageCheckPeriodDesc
+	ch <- pingdomCheckStatusDesc
+	ch <- pingdomCheckResponseTimeDesc
+	ch <- pingdomCheckAvailableErrorBudgetDesc
+	ch <- pingdomCheckErrorBudgetDesc
+	ch <- pingdomDownTimeDesc
+	ch <- pingdomUpTimeDesc
+	ch <- pingdomOutagesDesc
+}
+
+func (pc PingdomCollector) Collect(ch chan<- prometheus.Metric) {
+	outageCheckPeriodDuration := time.Hour * time.Duration(24*outageCheckPeriod)
+	outageCheckPeriodSecs := float64(outageCheckPeriodDuration / time.Second)
+
+	checks, err := pc.client.Checks.List(map[string]string{
 		"include_tags": "true",
 	})
 
 	if err != nil {
 		log.Errorf("Error getting checks: %v", err)
-		pingdomUp.Set(0)
+		ch <- prometheus.MustNewConstMetric(
+			pingdomUpDesc,
+			prometheus.GaugeValue,
+			float64(0),
+		)
 		return
 	}
-	pingdomUp.Set(1)
+
+	ch <- prometheus.MustNewConstMetric(
+		pingdomUpDesc,
+		prometheus.GaugeValue,
+		float64(1),
+	)
+
+	ch <- prometheus.MustNewConstMetric(
+		pingdomOutageCheckPeriodDesc,
+		prometheus.GaugeValue,
+		outageCheckPeriodSecs,
+	)
+
+	var wg sync.WaitGroup
 
 	for _, check := range checks {
+
+		// Ignore this check based on the presence of the ignore label
+		if check.HasIgnoreTag() {
+			continue
+		}
+
 		id := strconv.Itoa(check.ID)
 		tags := check.TagsString()
 		resolution := strconv.Itoa(check.Resolution)
@@ -114,101 +153,118 @@ func retrieveMetrics(client *pingdom.Client) {
 			status = 1
 		}
 
-		pingdomCheckStatus.WithLabelValues(
+		ch <- prometheus.MustNewConstMetric(
+			pingdomCheckStatusDesc,
+			prometheus.GaugeValue,
+			status,
 			id,
 			check.Name,
 			check.Hostname,
 			resolution,
 			paused,
 			tags,
-		).Set(status)
+		)
 
-		pingdomCheckResponseTime.WithLabelValues(
+		ch <- prometheus.MustNewConstMetric(
+			pingdomCheckResponseTimeDesc,
+			prometheus.GaugeValue,
+			float64(check.LastResponseTime)/1000.0,
 			id,
 			check.Name,
 			check.Hostname,
 			resolution,
 			paused,
 			tags,
-		).Set(float64(check.LastResponseTime) / 1000.0)
+		)
 
-		retrieveOutagesForCheck(client, check)
+		// Retrieve outages for check
+		var downCount, upTime, downTime float64
+
+		// Maximum allowed downtime, in seconds, according to the uptime SLO
+		uptimeErrorBudget := outageCheckPeriodSecs * (100.0 - check.UptimeSLOFromTags(defaultUptimeSLO)) / 100.0
+
+		// Retrieve the outage list within the desired period for this check, in background
+		wg.Add(1)
+
+		go func(check pingdom.CheckResponse) {
+			defer wg.Done()
+
+			// Retrieve the list of outages within the outage period for the given check
+			now := time.Now()
+			states, err := pc.client.OutageSummary.List(check.ID, map[string]string{
+				"from": strconv.FormatInt(now.Add(-outageCheckPeriodDuration).Unix(), 10),
+				"to":   strconv.FormatInt(now.Unix(), 10),
+			})
+
+			if err != nil {
+				log.Errorf("Error getting outages for check %d: %v", check.ID, err)
+				return
+			}
+
+			for _, state := range states {
+				switch state.Status {
+				case "down":
+					downCount = downCount + 1
+					downTime = downTime + float64(state.ToTime-state.FromTime)
+				case "up":
+					upTime = upTime + float64(state.ToTime-state.FromTime)
+
+				}
+			}
+
+			ch <- prometheus.MustNewConstMetric(
+				pingdomOutagesDesc,
+				prometheus.GaugeValue,
+				downCount,
+				id,
+				check.Name,
+				check.Hostname,
+				tags,
+			)
+
+			ch <- prometheus.MustNewConstMetric(
+				pingdomUpTimeDesc,
+				prometheus.GaugeValue,
+				upTime,
+				id,
+				check.Name,
+				check.Hostname,
+				tags,
+			)
+
+			ch <- prometheus.MustNewConstMetric(
+				pingdomDownTimeDesc,
+				prometheus.GaugeValue,
+				downTime,
+				id,
+				check.Name,
+				check.Hostname,
+				tags,
+			)
+
+			ch <- prometheus.MustNewConstMetric(
+				pingdomCheckErrorBudgetDesc,
+				prometheus.GaugeValue,
+				uptimeErrorBudget,
+				id,
+				check.Name,
+				check.Hostname,
+				tags,
+			)
+
+			ch <- prometheus.MustNewConstMetric(
+				pingdomCheckAvailableErrorBudgetDesc,
+				prometheus.GaugeValue,
+				uptimeErrorBudget-downTime,
+				id,
+				check.Name,
+				check.Hostname,
+				tags,
+			)
+		}(check)
 	}
-}
 
-func retrieveOutagesForCheck(client *pingdom.Client, check pingdom.CheckResponse) {
-	var downCount, upTime, downTime float64
-
-	id := strconv.Itoa(check.ID)
-	tags := check.TagsString()
-
-	now := time.Now()
-
-	outageCheckPeriodDuration := time.Hour * time.Duration(24*outageCheckPeriod)
-	outageCheckPeriodSecs := float64(outageCheckPeriodDuration / time.Second)
-
-	// Register outage check period as a metric
-	pingdomOutageCheckPeriod.Set(outageCheckPeriodSecs)
-
-	// Maximum allowed downtime, in seconds, according to the uptime SLO
-	uptimeErrorBudget := outageCheckPeriodSecs * (100.0 - check.UptimeSLOFromTags(defaultUptimeSLO)) / 100.0
-
-	// Retrieve the list of outages within the outage period for the given check
-	states, err := client.OutageSummary.List(check.ID, map[string]string{
-		"from": strconv.FormatInt(now.Add(-outageCheckPeriodDuration).Unix(), 10),
-		"to":   strconv.FormatInt(now.Unix(), 10),
-	})
-
-	if err != nil {
-		log.Errorf("Error getting outages for check %d: %v", check.ID, err)
-		return
-	}
-
-	for _, state := range states {
-		switch state.Status {
-		case "down":
-			downCount = downCount + 1
-			downTime = downTime + float64(state.ToTime-state.FromTime)
-		case "up":
-			upTime = upTime + float64(state.ToTime-state.FromTime)
-
-		}
-	}
-
-	pingdomOutages.WithLabelValues(
-		id,
-		check.Name,
-		check.Hostname,
-		tags,
-	).Set(downCount)
-
-	pingdomUpTime.WithLabelValues(
-		id,
-		check.Name,
-		check.Hostname,
-		tags,
-	).Set(upTime)
-
-	pingdomDownTime.WithLabelValues(
-		id,
-		check.Name,
-		check.Hostname,
-		tags,
-	).Set(downTime)
-
-	pingdomCheckErrorBudget.WithLabelValues(
-		id,
-		check.Name,
-		check.Hostname,
-		tags,
-	).Set(uptimeErrorBudget)
-
-	pingdomCheckAvailableErrorBudget.WithLabelValues(
-		id,
-		check.Name,
-		check.Hostname,
-		tags,
-	).Set(uptimeErrorBudget - downTime)
+	wg.Wait()
 }
 
 func main() {
@@ -230,41 +286,19 @@ func main() {
 		os.Exit(1)
 	}
 
-	s := NewServer()
-	h := http.Server{
-		Addr:    fmt.Sprintf(":%d", port),
-		Handler: s,
+	registry := prometheus.NewPedanticRegistry()
+	pingdomCollector := PingdomCollector{
+		client: client,
 	}
 
-	done := make(chan os.Signal, 1)
-	signal.Notify(done, syscall.SIGINT, syscall.SIGTERM)
+	registry.MustRegister(
+		pingdomCollector,
+		prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{}),
+		prometheus.NewGoCollector(),
+	)
 
-	// Run metric retrieval loops
-	go func() {
-		retrieveMetrics(client)
+	http.Handle("/metrics", promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
 
-		for {
-			select {
-			case <-time.After(time.Second * time.Duration(waitSeconds)):
-				retrieveMetrics(client)
-			}
-		}
-	}()
-
-	// Run server
-	go func() {
-		log.Infof("Pingdom Exporter v%s listening on http://0.0.0.0:%d\n", VERSION, port)
-		if err := h.ListenAndServe(); err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	<-done
-	log.Infof("Received shutdown signal, exiting")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-
-	h.Shutdown(ctx)
-	log.Infoln("Server gracefully stopped")
+	log.Infof("Pingdom Exporter v%s listening on http://0.0.0.0:%d\n", VERSION, port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }

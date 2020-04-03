@@ -27,9 +27,30 @@ Usage of bin/pingdom-exporter:
     	time (in days) in which to retrieve outage data from the Pingdom API (default 7)
   -port int
     	port to listen on (default 9158)
-  -wait int
-    	time (in seconds) to wait between each metrics update (default 60)
 ```
+
+#### Supported Pingdom Tags
+
+##### `uptime_slo_xxx`
+
+This will instruct pingdom-exporter to use a custom SLO for the given check
+instead of the default one of 99%. Some tag examples and their corresponding
+SLOs:
+
+- `uptime_slo_99` - 99%, same as default
+- `uptime_slo_995` - 99.5%
+- `uptime_slo_999` - 99.9%
+
+##### `pingdom_exporter_ignored`
+
+Checks with this tag won't have their metrics exported. Use this when you don't
+want to disable some check just to have it excluded from the pingdom-exporter
+metrics.
+
+(TODO: We might change the implementation for this later; one idea is to allow
+the pingdom-exporter to only operate in checks that contain a specific tag -
+that way, we can have different exporters targeting different checks based on
+their label)
 
 ### Docker Image
 
