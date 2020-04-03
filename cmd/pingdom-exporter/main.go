@@ -299,6 +299,6 @@ func main() {
 
 	http.Handle("/metrics", promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
 
-	log.Infof("Pingdom Exporter v%s listening on http://0.0.0.0:%d\n", VERSION, port)
+	log.Infof("Pingdom Exporter %s listening on http://0.0.0.0:%d\n", VERSION, port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
