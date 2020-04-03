@@ -172,7 +172,19 @@ func (cr *CheckResponse) TagsString() string {
 	return strings.Join(tagsRaw, ",")
 }
 
-// UptimeSLOFromTag returns the uptime SLO configured to this check via a tag,
+// HasIgnoreTag returns true if the tag "pingdom_exporter_ignored" exists for
+// this check.
+func (cr *CheckResponse) HasIgnoreTag() bool {
+	for _, tag := range cr.Tags {
+		if tag.Name == "pingdom_exporter_ignored" {
+			return true
+		}
+	}
+
+	return false
+}
+
+// UptimeSLOFromTags returns the uptime SLO configured to this check via a tag,
 // i.e. "uptime_slo_999" for 99.9 uptime SLO. Returns the argument as the
 // default uptime SLO in case no uptime SLO tag exists for this check.
 func (cr *CheckResponse) UptimeSLOFromTags(defaultUptimeSLO float64) float64 {

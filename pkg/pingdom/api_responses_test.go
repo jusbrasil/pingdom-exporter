@@ -29,6 +29,39 @@ func TestCheckResponseTagsString(t *testing.T) {
 	assert.Equal(t, "apache,server", checkResponse.TagsString())
 }
 
+func TestHasIgnoredTag(t *testing.T) {
+	testCases := []struct {
+		tag      CheckResponseTag
+		expected bool
+	}{
+		{
+			tag: CheckResponseTag{
+				Name:  "pingdom_exporter_ignored",
+				Type:  "a",
+				Count: 2,
+			},
+			expected: true,
+		},
+		{
+			tag: CheckResponseTag{
+				Name:  "pingdom_exporter_not_ignored",
+				Type:  "a",
+				Count: 2,
+			},
+			expected: false,
+		},
+	}
+
+	for _, testCase := range testCases {
+		response := CheckResponse{
+			Tags: []CheckResponseTag{testCase.tag},
+		}
+
+		actual := response.HasIgnoreTag()
+		assert.Equal(t, actual, testCase.expected)
+	}
+}
+
 func TestCheckResponseUptimeSLOFromTags(t *testing.T) {
 	testCases := []struct {
 		tag               CheckResponseTag
