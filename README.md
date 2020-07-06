@@ -51,10 +51,8 @@ Checks with this tag won't have their metrics exported. Use this when you don't
 want to disable some check just to have it excluded from the pingdom-exporter
 metrics.
 
-(TODO: We might change the implementation for this later; one idea is to allow
-the pingdom-exporter to only operate in checks that contain a specific tag -
-that way, we can have different exporters targeting different checks based on
-their label)
+You can also set the `-tags` flag to only return metrics for checks that contain
+the given tags.
 
 ### Docker Image
 
