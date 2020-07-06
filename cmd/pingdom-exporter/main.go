@@ -86,7 +86,7 @@ func init() {
 	flag.IntVar(&port, "port", 9158, "port to listen on")
 	flag.IntVar(&outageCheckPeriod, "outage-check-period", 7, "time (in days) in which to retrieve outage data from the Pingdom API")
 	flag.Float64Var(&defaultUptimeSLO, "default-uptime-slo", 99.0, "default uptime SLO to be used when the check doesn't provide a uptime SLO tag (i.e. uptime_slo_999 to 99.9% uptime SLO)")
-	flag.StringVar(&metricsPath, "web.telemetry-path", "/metrics", "Path under which to expose metrics.")
+	flag.StringVar(&metricsPath, "metrics-path", "/metrics", "path under which to expose metrics")
 	flag.StringVar(&tags, "tags", "", "tag list separated by commas")
 }
 
