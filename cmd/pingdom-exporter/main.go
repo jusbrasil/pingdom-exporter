@@ -20,6 +20,8 @@ var (
 	VERSION string
 
 	token             string
+	tags              string
+	metricsPath       string
 	waitSeconds       int
 	port              int
 	outageCheckPeriod int
@@ -84,6 +86,8 @@ func init() {
 	flag.IntVar(&port, "port", 9158, "port to listen on")
 	flag.IntVar(&outageCheckPeriod, "outage-check-period", 7, "time (in days) in which to retrieve outage data from the Pingdom API")
 	flag.Float64Var(&defaultUptimeSLO, "default-uptime-slo", 99.0, "default uptime SLO to be used when the check doesn't provide a uptime SLO tag (i.e. uptime_slo_999 to 99.9% uptime SLO)")
+	flag.StringVar(&metricsPath, "metrics-path", "/metrics", "path under which to expose metrics")
+	flag.StringVar(&tags, "tags", "", "tag list separated by commas")
 }
 
 type pingdomCollector struct {
@@ -108,6 +112,7 @@ func (pc pingdomCollector) Collect(ch chan<- prometheus.Metric) {
 
 	checks, err := pc.client.Checks.List(map[string]string{
 		"include_tags": "true",
+		"tags":         pc.client.Tags,
 	})
 
 	if err != nil {
@@ -279,6 +284,7 @@ func main() {
 
 	client, err := pingdom.NewClientWithConfig(pingdom.ClientConfig{
 		Token: token,
+		Tags:  tags,
 	})
 
 	if err != nil {
@@ -297,7 +303,16 @@ func main() {
 		prometheus.NewGoCollector(),
 	)
 
-	http.Handle("/metrics", promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
+	http.Handle(metricsPath, promhttp.HandlerFor(registry, promhttp.HandlerOpts{}))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(`<html>
+             <head><title>Pingdom Exporter</title></head>
+             <body>
+             <h1>Pingdom Exporter</h1>
+             <p><a href='` + metricsPath + `'>Metrics</a></p>
+             </body>
+             </html>`))
+	})
 
 	log.Infof("Pingdom Exporter %s listening on http://0.0.0.0:%d\n", VERSION, port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
