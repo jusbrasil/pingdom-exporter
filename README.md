@@ -23,10 +23,14 @@ bin/pingdom-exporter -h
 Usage of bin/pingdom-exporter:
   -default-uptime-slo float
     	default uptime SLO to be used when the check doesn't provide a uptime SLO tag (i.e. uptime_slo_999 to 99.9% uptime SLO) (default 99)
+  -metrics-path string
+    	path under which to expose metrics (default "/metrics")
   -outage-check-period int
     	time (in days) in which to retrieve outage data from the Pingdom API (default 7)
   -port int
     	port to listen on (default 9158)
+  -tags string
+    	tag list separated by commas
 ```
 
 #### Supported Pingdom Tags
