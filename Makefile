@@ -12,7 +12,7 @@ build:
 test:
 	go vet ./...
 	go test -coverprofile=coverage.out ./...
-	go tool cover -func=out/coverage.out
+	go tool cover -func=coverage.out
 
 .PHONY: lint
 lint:
