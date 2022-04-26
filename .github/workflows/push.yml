@@ -11,7 +11,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
+
+    - uses: actions/setup-go@v3
+      with:
+        go-version: '>=1.17.0'
+
+    - name: Run tests
+      run: make test lint
 
     - uses: sonarsource/sonarqube-scan-action@master
       env:
@@ -24,13 +31,13 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
     - name: Build image
-      run: make docker-build
+      run: make image
 
     - name: Sign in to Docker Hub
       run: echo -n ${{secrets.DOCKER_HUB_PASSWORD}} | docker login -u ${{secrets.DOCKER_HUB_USERNAME}} --password-stdin
 
     - name: Push image to registry
-      run: make docker-push
+      run: make publish
 
     - name: Sign out from Docker Hub
       if: always()

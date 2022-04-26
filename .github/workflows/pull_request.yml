@@ -9,7 +9,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
 
-    - name: Run tests and build binary
-      run: make docker-build
+    - uses: actions/setup-go@v3
+      with:
+        go-version: '>=1.17.0'
+
+    - name: Run tests
+      run: make test
+
+    - name: Build Docker image
+      run: make image

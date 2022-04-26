@@ -1,8 +1,8 @@
-FROM golang:1.13 AS build
+FROM golang:1.17 AS build
 
 WORKDIR /app
 ADD . .
-RUN make test lint build
+RUN make build
 
 FROM centurylink/ca-certs
 MAINTAINER Daniel Martins <daniel.martins@jusbrasil.com.br>

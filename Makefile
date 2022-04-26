@@ -2,6 +2,7 @@ GO=CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go
 TAG=$(shell git describe --tags)
 BIN=pingdom-exporter
 IMAGE=jusbrasil/$(BIN)
+DOCKER_BIN=docker
 
 .PHONY: build
 build:
@@ -11,7 +12,7 @@ build:
 test:
 	go vet ./...
 	go test -coverprofile=coverage.out ./...
-	go tool cover -func=coverage.out
+	go tool cover -func=out/coverage.out
 
 .PHONY: lint
 lint:
@@ -19,13 +20,13 @@ lint:
 	golint ./...
 
 # Build the Docker build stage TARGET
-.PHONY: docker-build
-docker-build:
-	docker build -t $(IMAGE):$(TAG) .
+.PHONY: image
+image:
+	$(DOCKER_BIN) build -t $(IMAGE):$(TAG) .
 
 # Push Docker images to the registry
-.PHONY: docker-push
-docker-push:
-	docker push $(IMAGE):$(TAG)
-	docker tag $(IMAGE):$(TAG) $(IMAGE):latest
-	docker push $(IMAGE):latest
+.PHONY: publish
+publish:
+	$(DOCKER_BIN) push $(IMAGE):$(TAG)
+	$(DOCKER_BIN) tag $(IMAGE):$(TAG) $(IMAGE):latest
+	$(DOCKER_BIN) push $(IMAGE):latest
