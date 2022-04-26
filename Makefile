@@ -4,7 +4,6 @@ IMAGE=jusbrasil/$(BIN)
 DOCKER_BIN=docker
 
 TAG=$(shell git describe --tags)
-TAG?=$(GITHUB_SHA)
 
 .PHONY: build
 build:
