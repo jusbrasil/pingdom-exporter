@@ -1,8 +1,10 @@
 GO=CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go
-TAG=$(shell git describe --tags)
 BIN=pingdom-exporter
 IMAGE=jusbrasil/$(BIN)
 DOCKER_BIN=docker
+
+TAG=$(shell git describe --tags)
+TAG?=$(GITHUB_SHA)
 
 .PHONY: build
 build:
