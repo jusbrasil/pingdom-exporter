@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"math"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/prometheus/common/log"
 )
 
 // Uptime SLO tag format.
@@ -195,7 +194,7 @@ func (cr *CheckResponse) UptimeSLOFromTags(defaultUptimeSLO float64) float64 {
 			n, err := strconv.ParseFloat(matches[1], 64)
 
 			if err != nil {
-				log.Errorf("Error parsing uptime SLO tag %s: %v", matches[1], err)
+				fmt.Fprintf(os.Stderr, "Error parsing uptime SLO tag %s: %v", matches[1], err)
 				break
 			}
 

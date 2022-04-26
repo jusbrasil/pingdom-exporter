@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -12,7 +13,6 @@ import (
 	"github.com/jusbrasil/pingdom-exporter/pkg/pingdom"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/prometheus/common/log"
 )
 
 var (
@@ -116,7 +116,7 @@ func (pc pingdomCollector) Collect(ch chan<- prometheus.Metric) {
 	})
 
 	if err != nil {
-		log.Errorf("Error getting checks: %v", err)
+		fmt.Fprintf(os.Stderr, "Error getting checks: %v", err)
 		ch <- prometheus.MustNewConstMetric(
 			pingdomUpDesc,
 			prometheus.GaugeValue,
@@ -202,7 +202,7 @@ func (pc pingdomCollector) Collect(ch chan<- prometheus.Metric) {
 			})
 
 			if err != nil {
-				log.Errorf("Error getting outages for check %d: %v", check.ID, err)
+				fmt.Fprintf(os.Stderr, "Error getting outages for check %d: %v", check.ID, err)
 				return
 			}
 
@@ -278,7 +278,7 @@ func main() {
 
 	token = os.Getenv("PINGDOM_API_TOKEN")
 	if token == "" {
-		log.Errorln("Pingdom API token must be provided via the PINGDOM_API_TOKEN environment variable, exiting")
+		fmt.Fprintln(os.Stderr, "Pingdom API token must be provided via the PINGDOM_API_TOKEN environment variable, exiting")
 		os.Exit(1)
 	}
 
@@ -288,7 +288,7 @@ func main() {
 	})
 
 	if err != nil {
-		log.Errorln("Cannot create Pingdom client, exiting")
+		fmt.Fprintln(os.Stderr, "Cannot create Pingdom client, exiting")
 		os.Exit(1)
 	}
 
@@ -314,6 +314,6 @@ func main() {
              </html>`))
 	})
 
-	log.Infof("Pingdom Exporter %s listening on http://0.0.0.0:%d\n", VERSION, port)
+	fmt.Fprintf(os.Stdout, "Pingdom Exporter %v listening on http://0.0.0.0:%v\n", VERSION, port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
