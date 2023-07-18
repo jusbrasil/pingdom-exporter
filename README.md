@@ -56,15 +56,8 @@ the given tags.
 
 ### Docker Image
 
-You can run this exporter using the
-[jusbrasil/pingdom-exporter](https://hub.docker.com/r/jusbrasil/pingdom-exporter/)
-Docker image:
-
-```bash
-docker run -d -p 9158:9158 \
-        -e PINGDOM_API_TOKEN=<api-token> \
-        jusbrasil/pingdom-exporter
-```
+We no longer provide a public Docker image. See the **Development** section
+on how to build your own image and push it to your private registry.
 
 ## Exported Metrics
 
@@ -95,8 +88,8 @@ make test
 make lint
 
 # Build Docker image
-make docker-build
+make image
 
 # Push Docker images to registry
-make docker-push
+make publish
 ```
