@@ -42,13 +42,13 @@ var (
 	pingdomCheckStatusDesc = prometheus.NewDesc(
 		"pingdom_uptime_status",
 		"The current status of the check (1: up, 0: down)",
-		[]string{"id", "name", "hostname", "resolution", "paused", "tags"}, nil,
+		[]string{"id", "name", "hostname", "status", "resolution", "paused", "tags"}, nil,
 	)
 
 	pingdomCheckResponseTimeDesc = prometheus.NewDesc(
 		"pingdom_uptime_response_time_seconds",
 		"The response time of last test, in seconds",
-		[]string{"id", "name", "hostname", "resolution", "paused", "tags"}, nil,
+		[]string{"id", "name", "hostname", "status", "resolution", "paused", "tags"}, nil,
 	)
 
 	pingdomOutagesDesc = prometheus.NewDesc(
@@ -165,6 +165,7 @@ func (pc pingdomCollector) Collect(ch chan<- prometheus.Metric) {
 			id,
 			check.Name,
 			check.Hostname,
+			check.Status,
 			resolution,
 			paused,
 			tags,
@@ -177,6 +178,7 @@ func (pc pingdomCollector) Collect(ch chan<- prometheus.Metric) {
 			id,
 			check.Name,
 			check.Hostname,
+			check.Status,
 			resolution,
 			paused,
 			tags,
