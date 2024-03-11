@@ -1,13 +1,9 @@
-FROM golang:1.19 AS build
+FROM golang:1.22
 
 WORKDIR /app
 ADD . .
 RUN make build
 
-FROM centurylink/ca-certs
-MAINTAINER Daniel Martins <daniel.martins@jusbrasil.com.br>
-
-COPY --from=build /app/bin/pingdom-exporter /pingdom-exporter
-ENTRYPOINT ["/pingdom-exporter"]
+ENTRYPOINT ["/app/bin/pingdom-exporter"]
 
 USER 65534:65534
