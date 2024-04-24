@@ -33,9 +33,9 @@ var (
 		nil, nil,
 	)
 
-	pingdomMinRequestLimit = prometheus.NewDesc(
-		"pingdom_min_request_limit",
-		"Minimal request limit from both Req-Limit-Short and Req-Limit-Long",
+	pingdomMinRequestLimitDesc = prometheus.NewDesc(
+		"pingdom_rate_limit_min_remaining_requests",
+		"Tracks the minimum remaining requests allowed before hitting the short-term or long-term rate limit in the Pingdom API.",
 		nil, nil,
 	)
 
@@ -102,7 +102,7 @@ type pingdomCollector struct {
 
 func (pc pingdomCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- pingdomUpDesc
-	ch <- pingdomMinRequestLimit
+	ch <- pingdomMinRequestLimitDesc
 	ch <- pingdomOutageCheckPeriodDesc
 	ch <- pingdomCheckStatusDesc
 	ch <- pingdomCheckResponseTimeDesc
@@ -123,7 +123,7 @@ func (pc pingdomCollector) Collect(ch chan<- prometheus.Metric) {
 	})
 
 	ch <- prometheus.MustNewConstMetric(
-		pingdomMinRequestLimit,
+		pingdomMinRequestLimitDesc,
 		prometheus.GaugeValue,
 		minReqLimit,
 	)
