@@ -33,6 +33,12 @@ var (
 		nil, nil,
 	)
 
+	pingdomMinRequestLimit = prometheus.NewDesc(
+		"pingdom_min_request_limit",
+		"Minimal request limit from both Req-Limit-Short and Req-Limit-Long",
+		nil, nil,
+	)
+
 	pingdomOutageCheckPeriodDesc = prometheus.NewDesc(
 		"pingdom_slo_period_seconds",
 		"Outage check period, in seconds",
@@ -96,6 +102,7 @@ type pingdomCollector struct {
 
 func (pc pingdomCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- pingdomUpDesc
+	ch <- pingdomMinRequestLimit
 	ch <- pingdomOutageCheckPeriodDesc
 	ch <- pingdomCheckStatusDesc
 	ch <- pingdomCheckResponseTimeDesc
@@ -110,10 +117,16 @@ func (pc pingdomCollector) Collect(ch chan<- prometheus.Metric) {
 	outageCheckPeriodDuration := time.Hour * time.Duration(24*outageCheckPeriod)
 	outageCheckPeriodSecs := float64(outageCheckPeriodDuration / time.Second)
 
-	checks, err := pc.client.Checks.List(map[string]string{
+	checks, minReqLimit, err := pc.client.Checks.List(map[string]string{
 		"include_tags": "true",
 		"tags":         pc.client.Tags,
 	})
+
+	ch <- prometheus.MustNewConstMetric(
+		pingdomMinRequestLimit,
+		prometheus.GaugeValue,
+		minReqLimit,
+	)
 
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error getting checks: %v", err)

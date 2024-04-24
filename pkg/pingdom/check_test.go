@@ -2,6 +2,7 @@ package pingdom
 
 import (
 	"fmt"
+	"math"
 	"net/http"
 	"testing"
 
@@ -14,6 +15,7 @@ func TestCheckServiceList(t *testing.T) {
 
 	mux.HandleFunc("/checks", func(w http.ResponseWriter, r *http.Request) {
 		testMethod(t, r, "GET")
+		w.Header().Set("req-limit-long", "Remaining: 12 Time until reset: 34")
 		fmt.Fprint(w, `{
 			"checks": [
 				{
@@ -141,7 +143,52 @@ func TestCheckServiceList(t *testing.T) {
 		},
 	}
 
-	checks, err := client.Checks.List()
+	checks, minRequestLimit, err := client.Checks.List()
 	assert.NoError(t, err)
 	assert.Equal(t, want, checks)
+	assert.EqualValues(t, 12, minRequestLimit)
+}
+
+func TestMinRequestLimitFromResp(t *testing.T) {
+	tc := []struct {
+		header   http.Header
+		expected float64
+	}{
+		{
+			header:   http.Header{},
+			expected: math.MaxFloat64,
+		},
+		{
+			header: http.Header{
+				"Req-Limit-Short": []string{"Remaining: 12 Time until reset: 34"},
+			},
+			expected: 12,
+		},
+		{
+			header: http.Header{
+				"Req-Limit-Long": []string{"Remaining: 56 Time until reset: 78"},
+			},
+			expected: 56,
+		},
+		{
+			header: http.Header{
+				"Req-Limit-Long":  []string{"Remaining: 0 Time until reset: 78"},
+				"Req-Limit-Short": []string{"Remaining: 12 Time until reset: 34"},
+			},
+			expected: 0,
+		},
+		{
+			header: http.Header{
+				"Req-Limit-Long": []string{"invalid"},
+			},
+			expected: math.MaxFloat64,
+		},
+	}
+
+	for _, tt := range tc {
+		t.Run(fmt.Sprintf("%v", tt.header), func(t *testing.T) {
+			actual := minRequestLimitFromHeader(tt.header)
+			assert.Equal(t, tt.expected, actual)
+		})
+	}
 }
