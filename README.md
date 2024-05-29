@@ -61,17 +61,18 @@ on how to build your own image and push it to your private registry.
 
 ## Exported Metrics
 
-| Metric Name                                         | Description                                                                     |
-| --------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `pingdom_up`                                        | Was the last query on Pingdom API successful                                    |
-| `pingdom_uptime_status`                             | The current status of the check (1: up, 0: down)                                |
-| `pingdom_uptime_response_time_seconds`              | The response time of last test, in seconds                                      |
-| `pingdom_slo_period_seconds`                        | Outage check period, in seconds (see `-outage-check-period` flag)               |
-| `pingdom_outages_total`                             | Number of outages within the outage check period                                |
-| `pingdom_down_seconds`                              | Total down time within the outage check period, in seconds                      |
-| `pingdom_up_seconds`                                | Total up time within the outage check period, in seconds                        |
-| `pingdom_uptime_slo_error_budget_total_seconds`     | Maximum number of allowed downtime, in seconds, according to the uptime SLO     |
-| `pingdom_uptime_slo_error_budget_available_seconds` | Number of seconds of downtime we can still have without breaking the uptime SLO |
+| Metric Name                                         | Description                                                                                              |
+| --------------------------------------------------- |----------------------------------------------------------------------------------------------------------|
+| `pingdom_up`                                        | Was the last query on Pingdom API successful                                                             |
+| `pingdom_rate_limit_remaining_requests`             | The remaining requests allowed before hitting the short-term or long-term rate limit in the Pingdom API. |
+| `pingdom_uptime_status`                             | The current status of the check (1: up, 0: down)                                                         |
+| `pingdom_uptime_response_time_seconds`              | The response time of last test, in seconds                                                               |
+| `pingdom_slo_period_seconds`                        | Outage check period, in seconds (see `-outage-check-period` flag)                                        |
+| `pingdom_outages_total`                             | Number of outages within the outage check period                                                         |
+| `pingdom_down_seconds`                              | Total down time within the outage check period, in seconds                                               |
+| `pingdom_up_seconds`                                | Total up time within the outage check period, in seconds                                                 |
+| `pingdom_uptime_slo_error_budget_total_seconds`     | Maximum number of allowed downtime, in seconds, according to the uptime SLO                              |
+| `pingdom_uptime_slo_error_budget_available_seconds` | Number of seconds of downtime we can still have without breaking the uptime SLO                          |
 
 ## Development
 
